@@ -4,15 +4,25 @@
   "description": "写作协助工具",
   "license": "MIT",
   "version": "0.0.1",
+  "publisher": "fantasy",
+  "author": {
+    "name": "Jerry wange",
+    "email": "fantasy.cwxyz@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/cwxyz007/vscode-writing/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cwxyz007/vscode-writing.git"
+  },
   "engines": {
     "vscode": "^1.42.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:extension.helloWorld"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "grammars": [
@@ -25,12 +35,7 @@
         ]
       }
     ],
-    "commands": [
-      {
-        "command": "extension.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r",
