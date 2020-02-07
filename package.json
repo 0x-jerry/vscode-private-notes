@@ -1,7 +1,8 @@
 {
   "name": "vscode-writing",
-	"displayName": "vscode-writing",
+  "displayName": "vscode-writing",
   "description": "写作协助工具",
+  "license": "MIT",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.42.0"
@@ -19,7 +20,7 @@
         "scopeName": "markdown.story",
         "path": "./syntaxes/markdown.story.tmLanguage.json",
         "injectTo": [
-					"meta.paragraph.markdown",
+          "meta.paragraph.markdown",
           "text.html.markdown"
         ]
       }
@@ -32,6 +33,7 @@
     ]
   },
   "scripts": {
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r",
     "vscode:prepublish": "yarn run compile",
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
@@ -44,9 +46,10 @@
     "@types/mocha": "^7.0.1",
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.42.0",
-    "eslint": "^6.8.0",
-    "@typescript-eslint/parser": "^2.18.0",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
+    "@typescript-eslint/parser": "^2.18.0",
+    "conventional-changelog-cli": "^2.0.31",
+    "eslint": "^6.8.0",
     "glob": "^7.1.6",
     "mocha": "^7.0.1",
     "typescript": "^3.7.5",

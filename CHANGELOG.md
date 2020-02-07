@@ -1,9 +1,6 @@
-# Change Log
+## 0.0.1 (2020-02-07)
 
-All notable changes to the "vscode-writing" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+### Features
 
-## [Unreleased]
-
-- Initial release
+* add highlight for start with @ and # ([be57bad](https://github.com/cwxyz007/vscode-writing/commit/be57bad63433b40fdf7412d7e85d09977ef15a3a))
