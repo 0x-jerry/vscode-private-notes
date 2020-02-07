@@ -1,0 +1,23 @@
+{
+  "fileTypes": [],
+  "injectionSelector": "meta.paragraph.markdown",
+  "scopeName": "markdown.story",
+  "patterns": [
+    {
+      "include": "#letter"
+    },
+    {
+      "include": "#support"
+    }
+  ],
+  "repository": {
+    "letter": {
+      "match": "@[^\\s]+",
+      "name": "keyword.story.tag"
+    },
+    "support": {
+      "match": "#[^\\s]+",
+      "name": "support.class.story.anchor"
+    }
+  }
+}
