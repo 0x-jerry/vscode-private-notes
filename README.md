@@ -4,14 +4,13 @@ A writing extension for myself
 
 ## TODO
 
-- [x] more highlight
-- [ ] remote workspace
-- [ ] auto upload image when paste image
-- [ ] template for writing (.writing config folder)
-- [ ] upload markdown to [halo] server
+- [x] More highlight
+- [ ] Auto encrypt and decrypt files (vscode FileSystemProvider)
+- [ ] Config folder (.writing)
+- [ ] Git version support (git-lfs), if file is encrypted
+- [ ] Auto upload image when paste image (may be)
+- [ ] Doubly linked list (may be), need a solution with encrypted files
 
-## more highlight
+## More Highlight
 
 ![highlight](./docs/highlight.png)
-
-[halo]: https://docs.halo.run/
