@@ -23,7 +23,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onFileSystem:memfs"
   ],
   "main": "./dist/extension.js",
   "contributes": {
