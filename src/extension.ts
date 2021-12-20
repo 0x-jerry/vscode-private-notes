@@ -25,7 +25,18 @@ export function activate(context: vscode.ExtensionContext) {
         query: query.toString(),
       });
 
-      vscode.commands.executeCommand('vscode.openFolder', uri);
+      const yes = await vscode.window.showQuickPick(['Yes', 'No'], {
+        placeHolder: 'Open it with single root?',
+      });
+
+      if (yes === 'Yes') {
+        vscode.commands.executeCommand('vscode.openFolder', uri);
+      } else {
+        vscode.workspace.updateWorkspaceFolders(0, 0, {
+          name: 'Test',
+          uri,
+        });
+      }
     }),
   );
 }
