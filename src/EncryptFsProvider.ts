@@ -90,8 +90,8 @@ export class MemFS implements vscode.FileSystemProvider {
     );
   }
 
-  async delete(uri: vscode.Uri): Promise<void> {
-    await vscode.workspace.fs.delete(this._getTargetUrl(uri));
+  async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
+    await vscode.workspace.fs.delete(this._getTargetUrl(uri), options);
 
     const dirname = uri.with({ path: path.posix.dirname(uri.path) });
 
@@ -122,7 +122,7 @@ export class MemFS implements vscode.FileSystemProvider {
     }
 
     try {
-      return vscode.workspace.fs.stat(newUri);
+      return await vscode.workspace.fs.stat(newUri);
     } catch (error) {
       //
     }
