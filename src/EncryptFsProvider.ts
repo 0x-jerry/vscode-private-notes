@@ -19,8 +19,6 @@ export class MemFS implements vscode.FileSystemProvider {
       scheme,
     });
 
-    console.log('uri:', newUri.toString());
-
     return newUri;
   }
 

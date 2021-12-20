@@ -50,7 +50,17 @@
           "when": "workbenchState != workspace"
         }
       ]
-    }
+    },
+    "resourceLabelFormatters": [
+      {
+        "scheme": "memfs",
+        "formatting": {
+          "label": "${path}",
+          "separator": "/",
+          "workspaceSuffix": "MemFS"
+        }
+      }
+    ]
   },
   "scripts": {
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r",
