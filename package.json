@@ -22,7 +22,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "*"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "grammars": [
@@ -35,7 +37,21 @@
         ]
       }
     ],
-    "commands": []
+    "commands": [
+      {
+        "command": "memfs.workspaceInit",
+        "title": "Setup Workspace",
+        "category": "MemFS"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "memfs.workspaceInit",
+          "when": "workbenchState != workspace"
+        }
+      ]
+    }
   },
   "scripts": {
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r",

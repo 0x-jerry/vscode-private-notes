@@ -1,15 +1,19 @@
 # VSCode Writing
 
-A writing extension for myself
+A writing extension for myself.
 
 ## TODO
 
 - [x] More highlight
 - [ ] Auto encrypt and decrypt files (vscode FileSystemProvider)
-- [ ] Config folder (.writing)
-- [ ] Git version support (git-lfs), if file is encrypted
-- [ ] Auto upload image when paste image (may be)
-- [ ] Doubly linked list (may be), need a solution with encrypted files
+
+## Encrypt File System Provider
+
+Use memory workspace to load an exist workspace. and sync with all edit action.
+
+Limitation:
+
+1. Do not edit origin workspace directly
 
 ## More Highlight
 
