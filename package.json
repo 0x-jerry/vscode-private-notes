@@ -40,7 +40,7 @@
   "scripts": {
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r",
     "vscode:prepublish": "tsup src/extension.ts --sourcemap",
-    "dev": "tsup src/extension.ts --sourcemap",
+    "dev": "tsup src/extension.ts --sourcemap --watch",
     "version": "yarn changelog && git add CHANGELOG.md"
   },
   "peerDependencies": {
