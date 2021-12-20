@@ -1,19 +1,19 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
+import path from 'path';
+import vscode, { Uri } from 'vscode';
 
 export class MemFS implements vscode.FileSystemProvider {
-  get targetWorkspace() {
-    return vscode.workspace.workspaceFolders?.[0];
-  }
+  static scheme = 'memfs';
 
   private _getTargetUrl(uri: vscode.Uri) {
-    if (!this.targetWorkspace) throw vscode.FileSystemError.FileNotADirectory(uri);
+    const rawUri = Uri.parse(uri.path.slice(1));
 
-    const newUri = vscode.Uri.from({
+    const newUri = Uri.from({
       ...uri,
-      path: this.targetWorkspace.uri.path + uri.path,
-      scheme: this.targetWorkspace.uri.scheme,
+      path: rawUri.path,
+      scheme: rawUri.scheme,
     });
+
+    console.log('uri:', newUri.toString());
 
     return newUri;
   }
@@ -39,7 +39,9 @@ export class MemFS implements vscode.FileSystemProvider {
   async readFile(uri: vscode.Uri): Promise<Uint8Array> {
     const newUri = this._getTargetUrl(uri);
 
-    return vscode.workspace.fs.readFile(newUri);
+    const result = await vscode.workspace.fs.readFile(newUri);
+
+    return result;
   }
 
   async writeFile(
@@ -47,7 +49,7 @@ export class MemFS implements vscode.FileSystemProvider {
     content: Uint8Array,
     options: { create: boolean; overwrite: boolean },
   ): Promise<void> {
-    let entry = await this._lookup(uri, true);
+    const entry = await this._lookup(uri, true);
 
     if (entry?.type === vscode.FileType.Directory) {
       throw vscode.FileSystemError.FileIsADirectory(uri);
@@ -88,6 +90,20 @@ export class MemFS implements vscode.FileSystemProvider {
       { type: vscode.FileChangeType.Deleted, uri: oldUri },
       { type: vscode.FileChangeType.Created, uri: newUri },
     );
+  }
+
+  async copy(
+    source: vscode.Uri,
+    destination: vscode.Uri,
+    options: { overwrite: boolean },
+  ): Promise<void> {
+    await vscode.workspace.fs.copy(
+      this._getTargetUrl(source),
+      this._getTargetUrl(destination),
+      options,
+    );
+
+    this._fireSoon({ type: vscode.FileChangeType.Created, uri: destination });
   }
 
   async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
@@ -136,9 +152,9 @@ export class MemFS implements vscode.FileSystemProvider {
 
   readonly onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]> = this._emitter.event;
 
-  watch(_resource: vscode.Uri): vscode.Disposable {
+  watch(): vscode.Disposable {
     // ignore, fires for all changes...
-    return new vscode.Disposable(() => {});
+    return new vscode.Disposable(() => undefined);
   }
 
   private _fireSoon(...events: vscode.FileChangeEvent[]): void {

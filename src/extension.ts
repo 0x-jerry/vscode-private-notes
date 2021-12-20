@@ -1,6 +1,4 @@
-'use strict';
-
-import * as vscode from 'vscode';
+import vscode from 'vscode';
 import { MemFS } from './EncryptFsProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -9,17 +7,16 @@ export function activate(context: vscode.ExtensionContext) {
   const memFs = new MemFS();
 
   context.subscriptions.push(
-    vscode.workspace.registerFileSystemProvider('memfs', memFs, { isCaseSensitive: true }),
+    vscode.workspace.registerFileSystemProvider(MemFS.scheme, memFs, { isCaseSensitive: true }),
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('memfs.workspaceInit', async (_) => {
+    vscode.commands.registerCommand('memfs.workspaceInit', async () => {
       const current = vscode.workspace.workspaceFolders?.[0];
+      if (!current) return;
 
-      vscode.workspace.updateWorkspaceFolders(1, 0, {
-        uri: vscode.Uri.parse('memfs:/'),
-        name: `MemFS - ${current?.name || ''}`,
-      });
+      const uri = vscode.Uri.parse(`${MemFS.scheme}:/${current.uri.toString()}`);
+      vscode.commands.executeCommand('vscode.openFolder', uri);
     }),
   );
 }
