@@ -14,9 +14,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('memfs.workspaceInit', async (_) => {
+      const current = vscode.workspace.workspaceFolders?.[0];
+
       vscode.workspace.updateWorkspaceFolders(1, 0, {
         uri: vscode.Uri.parse('memfs:/'),
-        name: 'MemFS - Sample',
+        name: `MemFS - ${current?.name || ''}`,
       });
     }),
   );
