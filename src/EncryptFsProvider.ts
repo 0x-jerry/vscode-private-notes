@@ -1,16 +1,22 @@
-import path from 'path';
-import vscode, { Uri } from 'vscode';
+import path from 'path-browserify';
+import vscode, { Uri, workspace } from 'vscode';
+import { parseQuery } from './utils';
 
 export class MemFS implements vscode.FileSystemProvider {
   static scheme = 'memfs';
 
   private _getTargetUrl(uri: vscode.Uri) {
-    const rawUri = Uri.parse(uri.path.slice(1));
+    let scheme = '';
+
+    for (const item of workspace.workspaceFolders || []) {
+      if (item.uri.scheme === MemFS.scheme) {
+        scheme = parseQuery(item.uri.query).get('scheme') || '';
+      }
+    }
 
     const newUri = Uri.from({
       ...uri,
-      path: rawUri.path,
-      scheme: rawUri.scheme,
+      scheme,
     });
 
     console.log('uri:', newUri.toString());
@@ -109,7 +115,7 @@ export class MemFS implements vscode.FileSystemProvider {
   async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
     await vscode.workspace.fs.delete(this._getTargetUrl(uri), options);
 
-    const dirname = uri.with({ path: path.posix.dirname(uri.path) });
+    const dirname = uri.with({ path: path.dirname(uri.path) });
 
     this._fireSoon(
       { type: vscode.FileChangeType.Changed, uri: dirname },
@@ -120,7 +126,7 @@ export class MemFS implements vscode.FileSystemProvider {
   async createDirectory(uri: vscode.Uri): Promise<void> {
     await vscode.workspace.fs.createDirectory(this._getTargetUrl(uri));
 
-    const dirname = uri.with({ path: path.posix.dirname(uri.path) });
+    const dirname = uri.with({ path: path.dirname(uri.path) });
 
     this._fireSoon(
       { type: vscode.FileChangeType.Changed, uri: dirname },
@@ -148,7 +154,7 @@ export class MemFS implements vscode.FileSystemProvider {
 
   private _emitter = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
   private _bufferedEvents: vscode.FileChangeEvent[] = [];
-  private _fireSoonHandle?: NodeJS.Timer;
+  private _fireSoonHandle?: number;
 
   readonly onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]> = this._emitter.event;
 

@@ -1,5 +1,6 @@
 import vscode from 'vscode';
 import { MemFS } from './EncryptFsProvider';
+import { parseQuery } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('MemFS says "Hello"');
@@ -15,7 +16,15 @@ export function activate(context: vscode.ExtensionContext) {
       const current = vscode.workspace.workspaceFolders?.[0];
       if (!current) return;
 
-      const uri = vscode.Uri.parse(`${MemFS.scheme}:/${current.uri.toString()}`);
+      const query = parseQuery(current.uri.query);
+      query.set('scheme', current.uri.scheme);
+
+      const uri = vscode.Uri.from({
+        ...current.uri,
+        scheme: MemFS.scheme,
+        query: query.toString(),
+      });
+
       vscode.commands.executeCommand('vscode.openFolder', uri);
     }),
   );
