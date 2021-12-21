@@ -1,5 +1,7 @@
-import path from 'path-browserify';
+import path from 'path';
+import { TextEncoder } from 'util';
 import vscode, { Uri, workspace } from 'vscode';
+import { decrypt, encrypt } from './aes';
 import { parseQuery } from './utils';
 
 export class MemFS implements vscode.FileSystemProvider {
@@ -45,7 +47,14 @@ export class MemFS implements vscode.FileSystemProvider {
 
     const result = await vscode.workspace.fs.readFile(newUri);
 
-    return result;
+    try {
+      const decryptContent = decrypt(result, new TextEncoder().encode('test'));
+
+      return decryptContent;
+    } catch (error) {
+      console.error('decrypt error:', error);
+      return result;
+    }
   }
 
   async writeFile(
@@ -68,7 +77,10 @@ export class MemFS implements vscode.FileSystemProvider {
     }
 
     const newUri = this._getTargetUrl(uri);
-    await vscode.workspace.fs.writeFile(newUri, content);
+
+    const encryptContent = encrypt(content, new TextEncoder().encode('test'));
+
+    await vscode.workspace.fs.writeFile(newUri, encryptContent);
 
     if (!entry) {
       this._fireSoon({ type: vscode.FileChangeType.Created, uri });
@@ -154,7 +166,7 @@ export class MemFS implements vscode.FileSystemProvider {
 
   private _emitter = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
   private _bufferedEvents: vscode.FileChangeEvent[] = [];
-  private _fireSoonHandle?: number;
+  private _fireSoonHandle?: NodeJS.Timeout;
 
   readonly onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]> = this._emitter.event;
 

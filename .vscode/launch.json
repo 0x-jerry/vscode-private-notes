@@ -12,8 +12,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         //
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionDevelopmentKind=web"
+        "--extensionDevelopmentPath=${workspaceFolder}"
       ],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "npm: dev"
