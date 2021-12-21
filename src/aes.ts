@@ -24,14 +24,11 @@ export function encrypt(content: Uint8Array, masterKey: Uint8Array) {
 }
 
 export function decrypt(encData: Uint8Array, masterKey: Uint8Array) {
-  // base64 decoding
-  const bData = encData;
-
-  // convert data to buffers
-  const salt = bData.slice(0, 64);
-  const iv = bData.slice(64, 80);
-  const tag = bData.slice(80, 96);
-  const content = bData.slice(96);
+  // get salt, iv, tag, content
+  const salt = encData.slice(0, 64); // 64
+  const iv = encData.slice(64, 80); // 16
+  const tag = encData.slice(80, 96); // 16
+  const content = encData.slice(96);
 
   // derive key using; 32 byte key length
   const key = pbkdf2Sync(masterKey, salt, 2145, 32, 'sha512');
