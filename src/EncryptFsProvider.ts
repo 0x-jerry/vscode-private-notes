@@ -87,8 +87,10 @@ export class MemFS implements vscode.FileSystemProvider {
     const newOldUri = this._getTargetUrl(oldUri);
     const newNewUri = this._getTargetUrl(newUri);
 
-    // todo: can't rename when use multi workspace.
-    await vscode.workspace.fs.rename(newOldUri, newNewUri, options);
+    // await vscode.workspace.fs.rename(newOldUri, newNewUri, options);
+
+    await vscode.workspace.fs.copy(newOldUri, newNewUri, options);
+    await vscode.workspace.fs.delete(newOldUri);
 
     this._fireSoon(
       { type: vscode.FileChangeType.Deleted, uri: oldUri },
