@@ -1,6 +1,6 @@
 import { randomBytes, pbkdf2Sync, createCipheriv, createDecipheriv } from 'crypto';
 
-const encryptSymbol = Buffer.from([0x01, 0x02, 0x03, 0xff, 0xfe, 0xfd]);
+const encryptSign = Buffer.from([0x01, 0x02, 0x03, 0xff, 0xfe, 0xfd]);
 
 export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array {
   // random initialization vector
@@ -22,13 +22,13 @@ export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array 
   const tag = cipher.getAuthTag();
 
   // generate output
-  return Buffer.concat([encryptSymbol, salt, iv, tag, encrypted]);
+  return Buffer.concat([encryptSign, salt, iv, tag, encrypted]);
 }
 
 export function decrypt(encData: Uint8Array, masterKey: Uint8Array): Uint8Array {
+  const len = encryptSign.byteLength;
+
   // get salt, iv, tag, content
-  const len = encryptSymbol.byteLength;
-  // const symbol = encData.slice(0, len);
   const salt = encData.slice(len + 0, len + 64); // 64
   const iv = encData.slice(len + 64, len + 80); // 16
   const tag = encData.slice(len + 80, len + 96); // 16
@@ -48,8 +48,8 @@ export function decrypt(encData: Uint8Array, masterKey: Uint8Array): Uint8Array 
 }
 
 export function isEncryptFile(encData: Uint8Array) {
-  const len = encryptSymbol.byteLength;
-  const symbol = encData.slice(0, len);
+  const len = encryptSign.byteLength;
+  const sign = encData.slice(0, len);
 
-  return Buffer.compare(symbol, encryptSymbol) === 0;
+  return encryptSign.equals(sign);
 }
