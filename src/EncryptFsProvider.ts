@@ -3,9 +3,16 @@ import { TextEncoder } from 'util';
 import vscode, { Uri, workspace } from 'vscode';
 import { decrypt, encrypt } from './aes';
 import { parseQuery } from './utils';
+import { ConfigurationContext } from './configuration';
+
+interface MemFSContext {
+  configuration: ConfigurationContext;
+}
 
 export class MemFS implements vscode.FileSystemProvider {
   static scheme = 'memfs';
+
+  constructor(private ctx: MemFSContext) {}
 
   private _getTargetUrl(uri: vscode.Uri) {
     let scheme = '';
@@ -47,13 +54,21 @@ export class MemFS implements vscode.FileSystemProvider {
 
     const result = await vscode.workspace.fs.readFile(newUri);
 
+    return this.#getReadContent(uri, result);
+  }
+
+  async #getReadContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {
+    if (this.ctx.configuration.isExclude(uri)) {
+      return content;
+    }
+
     try {
-      const decryptContent = decrypt(result, new TextEncoder().encode('test'));
+      const decryptContent = decrypt(content, new TextEncoder().encode('test'));
 
       return decryptContent;
     } catch (error) {
       console.error('decrypt error:', error);
-      return result;
+      return content;
     }
   }
 
@@ -78,7 +93,7 @@ export class MemFS implements vscode.FileSystemProvider {
 
     const newUri = this._getTargetUrl(uri);
 
-    const encryptContent = encrypt(content, new TextEncoder().encode('test'));
+    const encryptContent = await this.#getSaveContent(uri, content);
 
     await vscode.workspace.fs.writeFile(newUri, encryptContent);
 
@@ -87,6 +102,14 @@ export class MemFS implements vscode.FileSystemProvider {
     } else {
       this._fireSoon({ type: vscode.FileChangeType.Changed, uri });
     }
+  }
+
+  async #getSaveContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {
+    if (this.ctx.configuration.isExclude(uri)) {
+      return content;
+    }
+
+    return encrypt(content, new TextEncoder().encode('test'));
   }
 
   // --- manage files/folders

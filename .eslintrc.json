@@ -1,3 +1,6 @@
 {
-  "extends": "@0x-jerry"
+  "extends": "@0x-jerry",
+  "rules": {
+    "no-useless-constructor": "off"
+  }
 }

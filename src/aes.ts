@@ -1,6 +1,6 @@
 import { randomBytes, pbkdf2Sync, createCipheriv, createDecipheriv } from 'crypto';
 
-export function encrypt(content: Uint8Array, masterKey: Uint8Array) {
+export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array {
   // random initialization vector
   const iv = randomBytes(16);
 
@@ -23,7 +23,7 @@ export function encrypt(content: Uint8Array, masterKey: Uint8Array) {
   return Buffer.concat([salt, iv, tag, encrypted]);
 }
 
-export function decrypt(encData: Uint8Array, masterKey: Uint8Array) {
+export function decrypt(encData: Uint8Array, masterKey: Uint8Array): Uint8Array {
   // get salt, iv, tag, content
   const salt = encData.slice(0, 64); // 64
   const iv = encData.slice(64, 80); // 16
