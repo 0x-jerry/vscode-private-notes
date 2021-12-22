@@ -1,18 +1,12 @@
 import vscode from 'vscode';
 import { ConfigurationContext } from './configuration';
 import { MemFS } from './EncryptFsProvider';
-import { getMemWorkspace, parseQuery } from './utils';
+import { parseQuery } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('MemFS says "Hello"');
 
   const configuration = new ConfigurationContext();
-
-  const memFsWorkspace = getMemWorkspace();
-
-  if (memFsWorkspace?.uri) {
-    configuration.load(memFsWorkspace.uri);
-  }
 
   const memFs = new MemFS({
     configuration,

@@ -54,11 +54,11 @@ export class MemFS implements vscode.FileSystemProvider {
 
     const result = await vscode.workspace.fs.readFile(newUri);
 
-    return this.#getReadContent(uri, result);
+    return this.#getReadContent(result);
   }
 
-  async #getReadContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {
-    if (!isEncryptFile(content) && this.ctx.configuration.isExclude(uri)) {
+  async #getReadContent(content: Uint8Array): Promise<Uint8Array> {
+    if (!isEncryptFile(content)) {
       return content;
     }
 

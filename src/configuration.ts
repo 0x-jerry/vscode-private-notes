@@ -1,4 +1,5 @@
-import { Uri, workspace } from 'vscode';
+import { Disposable, Uri, workspace } from 'vscode';
+import { getMemWorkspace } from './utils';
 
 export interface Configuration {
   /**
@@ -20,12 +21,16 @@ function defaultConf(): Configuration {
   };
 }
 
-export class ConfigurationContext {
+const confFileName = '.encrypt.json';
+
+export class ConfigurationContext implements Disposable {
   conf: Configuration = defaultConf();
+
+  _disposable: Disposable[] = [];
 
   async #load(root: Uri): Promise<Configuration> {
     try {
-      const confUri = Uri.joinPath(root, '.encrypt.json');
+      const confUri = Uri.joinPath(root, confFileName);
 
       const confFile = await workspace.fs.readFile(confUri);
 
@@ -44,17 +49,43 @@ export class ConfigurationContext {
     }
   }
 
-  async load(root: Uri): Promise<Configuration> {
-    const conf = await this.#load(root);
+  constructor() {
+    const watcher = workspace.createFileSystemWatcher('**/' + confFileName);
 
+    watcher.onDidChange(() => {
+      this.load();
+    });
+
+    watcher.onDidDelete(() => {
+      this.load();
+    });
+
+    watcher.onDidCreate(() => {
+      this.load();
+    });
+
+    this._disposable.push(watcher);
+
+    this.load();
+  }
+
+  async load(): Promise<void> {
+    const ws = getMemWorkspace();
+    if (!ws?.uri) {
+      return;
+    }
+
+    const conf = await this.#load(ws.uri);
     this.conf = conf;
-
-    return conf;
   }
 
   isExclude(file: Uri): boolean {
     const match = !!this.conf.exclude.find((n) => n.test(file.path));
 
     return match;
+  }
+
+  dispose() {
+    this._disposable.forEach((n) => n.dispose());
   }
 }
