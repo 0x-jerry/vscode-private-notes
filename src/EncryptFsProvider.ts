@@ -1,20 +1,36 @@
 import path from 'path';
 import { TextEncoder } from 'util';
-import vscode, { Uri, workspace } from 'vscode';
+import {
+  Disposable,
+  Event,
+  EventEmitter,
+  FileChangeEvent,
+  FileChangeType,
+  FileStat,
+  FileSystemError,
+  FileSystemProvider,
+  FileType,
+  Uri,
+  workspace,
+} from 'vscode';
 import { decrypt, encrypt, isEncryptFile } from './aes';
 import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
+import { Dispose } from './Disposable';
 
 interface MemFSContext {
   configuration: ConfigurationContext;
 }
 
-export class MemFS implements vscode.FileSystemProvider {
+export class MemFS extends Dispose implements FileSystemProvider {
   static scheme = 'memfs';
 
-  constructor(private ctx: MemFSContext) {}
+  constructor(private ctx: MemFSContext) {
+    super();
+    this.addDisposable(ctx.configuration);
+  }
 
-  private _getTargetUrl(uri: vscode.Uri) {
+  private _getTargetUrl(uri: Uri) {
     let scheme = '';
 
     for (const item of workspace.workspaceFolders || []) {
@@ -33,26 +49,26 @@ export class MemFS implements vscode.FileSystemProvider {
 
   // --- manage file metadata
 
-  async stat(uri: vscode.Uri): Promise<vscode.FileStat> {
+  async stat(uri: Uri): Promise<FileStat> {
     const newUri = this._getTargetUrl(uri);
 
-    return vscode.workspace.fs.stat(newUri);
+    return workspace.fs.stat(newUri);
   }
 
-  async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
+  async readDirectory(uri: Uri): Promise<[string, FileType][]> {
     const newUri = this._getTargetUrl(uri);
 
-    const result = await vscode.workspace.fs.readDirectory(newUri);
+    const result = await workspace.fs.readDirectory(newUri);
 
     return result;
   }
 
   // --- manage file contents
 
-  async readFile(uri: vscode.Uri): Promise<Uint8Array> {
+  async readFile(uri: Uri): Promise<Uint8Array> {
     const newUri = this._getTargetUrl(uri);
 
-    const result = await vscode.workspace.fs.readFile(newUri);
+    const result = await workspace.fs.readFile(newUri);
 
     return this.#getReadContent(result);
   }
@@ -73,34 +89,34 @@ export class MemFS implements vscode.FileSystemProvider {
   }
 
   async writeFile(
-    uri: vscode.Uri,
+    uri: Uri,
     content: Uint8Array,
     options: { create: boolean; overwrite: boolean },
   ): Promise<void> {
     const entry = await this._lookup(uri, true);
 
-    if (entry?.type === vscode.FileType.Directory) {
-      throw vscode.FileSystemError.FileIsADirectory(uri);
+    if (entry?.type === FileType.Directory) {
+      throw FileSystemError.FileIsADirectory(uri);
     }
 
     if (!entry && !options.create) {
-      throw vscode.FileSystemError.FileNotFound(uri);
+      throw FileSystemError.FileNotFound(uri);
     }
 
     if (entry && options.create && !options.overwrite) {
-      throw vscode.FileSystemError.FileExists(uri);
+      throw FileSystemError.FileExists(uri);
     }
 
     const newUri = this._getTargetUrl(uri);
 
     const encryptContent = await this.#getSaveContent(uri, content);
 
-    await vscode.workspace.fs.writeFile(newUri, encryptContent);
+    await workspace.fs.writeFile(newUri, encryptContent);
 
     if (!entry) {
-      this._fireSoon({ type: vscode.FileChangeType.Created, uri });
+      this._fireSoon({ type: FileChangeType.Created, uri });
     } else {
-      this._fireSoon({ type: vscode.FileChangeType.Changed, uri });
+      this._fireSoon({ type: FileChangeType.Changed, uri });
     }
   }
 
@@ -114,72 +130,60 @@ export class MemFS implements vscode.FileSystemProvider {
 
   // --- manage files/folders
 
-  async rename(
-    oldUri: vscode.Uri,
-    newUri: vscode.Uri,
-    options: { overwrite: boolean },
-  ): Promise<void> {
+  async rename(oldUri: Uri, newUri: Uri, options: { overwrite: boolean }): Promise<void> {
     const newOldUri = this._getTargetUrl(oldUri);
     const newNewUri = this._getTargetUrl(newUri);
 
-    // await vscode.workspace.fs.rename(newOldUri, newNewUri, options);
+    // await workspace.fs.rename(newOldUri, newNewUri, options);
 
-    await vscode.workspace.fs.copy(newOldUri, newNewUri, options);
-    await vscode.workspace.fs.delete(newOldUri);
+    await workspace.fs.copy(newOldUri, newNewUri, options);
+    await workspace.fs.delete(newOldUri);
 
     this._fireSoon(
-      { type: vscode.FileChangeType.Deleted, uri: oldUri },
-      { type: vscode.FileChangeType.Created, uri: newUri },
+      { type: FileChangeType.Deleted, uri: oldUri },
+      { type: FileChangeType.Created, uri: newUri },
     );
   }
 
-  async copy(
-    source: vscode.Uri,
-    destination: vscode.Uri,
-    options: { overwrite: boolean },
-  ): Promise<void> {
-    await vscode.workspace.fs.copy(
-      this._getTargetUrl(source),
-      this._getTargetUrl(destination),
-      options,
-    );
+  async copy(source: Uri, destination: Uri, options: { overwrite: boolean }): Promise<void> {
+    await workspace.fs.copy(this._getTargetUrl(source), this._getTargetUrl(destination), options);
 
-    this._fireSoon({ type: vscode.FileChangeType.Created, uri: destination });
+    this._fireSoon({ type: FileChangeType.Created, uri: destination });
   }
 
-  async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
-    await vscode.workspace.fs.delete(this._getTargetUrl(uri), options);
+  async delete(uri: Uri, options: { recursive: boolean }): Promise<void> {
+    await workspace.fs.delete(this._getTargetUrl(uri), options);
 
     const dirname = uri.with({ path: path.dirname(uri.path) });
 
     this._fireSoon(
-      { type: vscode.FileChangeType.Changed, uri: dirname },
-      { uri, type: vscode.FileChangeType.Deleted },
+      { type: FileChangeType.Changed, uri: dirname },
+      { uri, type: FileChangeType.Deleted },
     );
   }
 
-  async createDirectory(uri: vscode.Uri): Promise<void> {
-    await vscode.workspace.fs.createDirectory(this._getTargetUrl(uri));
+  async createDirectory(uri: Uri): Promise<void> {
+    await workspace.fs.createDirectory(this._getTargetUrl(uri));
 
     const dirname = uri.with({ path: path.dirname(uri.path) });
 
     this._fireSoon(
-      { type: vscode.FileChangeType.Changed, uri: dirname },
-      { type: vscode.FileChangeType.Created, uri },
+      { type: FileChangeType.Changed, uri: dirname },
+      { type: FileChangeType.Created, uri },
     );
   }
 
   // --- lookup
 
-  private async _lookup(uri: vscode.Uri, silent: boolean): Promise<vscode.FileStat | undefined> {
+  private async _lookup(uri: Uri, silent: boolean): Promise<FileStat | undefined> {
     const newUri = this._getTargetUrl(uri);
 
     if (!silent) {
-      return vscode.workspace.fs.stat(newUri);
+      return workspace.fs.stat(newUri);
     }
 
     try {
-      return await vscode.workspace.fs.stat(newUri);
+      return await workspace.fs.stat(newUri);
     } catch (error) {
       //
     }
@@ -187,18 +191,18 @@ export class MemFS implements vscode.FileSystemProvider {
 
   // --- manage file events
 
-  private _emitter = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
-  private _bufferedEvents: vscode.FileChangeEvent[] = [];
+  private _emitter = new EventEmitter<FileChangeEvent[]>();
+  private _bufferedEvents: FileChangeEvent[] = [];
   private _fireSoonHandle?: NodeJS.Timeout;
 
-  readonly onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]> = this._emitter.event;
+  readonly onDidChangeFile: Event<FileChangeEvent[]> = this._emitter.event;
 
-  watch(): vscode.Disposable {
+  watch(): Disposable {
     // ignore, fires for all changes...
-    return new vscode.Disposable(() => undefined);
+    return new Disposable(() => undefined);
   }
 
-  private _fireSoon(...events: vscode.FileChangeEvent[]): void {
+  private _fireSoon(...events: FileChangeEvent[]): void {
     this._bufferedEvents.push(...events);
 
     if (this._fireSoonHandle) {

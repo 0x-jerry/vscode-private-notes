@@ -1,4 +1,5 @@
-import { Disposable, Uri, workspace } from 'vscode';
+import { Uri, workspace } from 'vscode';
+import { Dispose } from './Disposable';
 import { getMemWorkspace } from './utils';
 
 export interface Configuration {
@@ -23,10 +24,8 @@ function defaultConf(): Configuration {
 
 const confFileName = '.encrypt.json';
 
-export class ConfigurationContext implements Disposable {
+export class ConfigurationContext extends Dispose {
   conf: Configuration = defaultConf();
-
-  _disposable: Disposable[] = [];
 
   async #load(root: Uri): Promise<Configuration> {
     try {
@@ -50,6 +49,12 @@ export class ConfigurationContext implements Disposable {
   }
 
   constructor() {
+    super();
+    this.watchConfFile();
+    this.load();
+  }
+
+  private watchConfFile() {
     const watcher = workspace.createFileSystemWatcher('**/' + confFileName);
 
     watcher.onDidChange(() => {
@@ -64,9 +69,7 @@ export class ConfigurationContext implements Disposable {
       this.load();
     });
 
-    this._disposable.push(watcher);
-
-    this.load();
+    this.addDisposable(watcher);
   }
 
   async load(): Promise<void> {
@@ -83,9 +86,5 @@ export class ConfigurationContext implements Disposable {
     const match = !!this.conf.exclude.find((n) => n.test(file.path));
 
     return match;
-  }
-
-  dispose() {
-    this._disposable.forEach((n) => n.dispose());
   }
 }

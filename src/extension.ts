@@ -1,9 +1,9 @@
-import vscode from 'vscode';
+import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { ConfigurationContext } from './configuration';
 import { MemFS } from './EncryptFsProvider';
 import { parseQuery } from './utils';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
   console.log('MemFS says "Hello"');
 
   const configuration = new ConfigurationContext();
@@ -12,33 +12,35 @@ export function activate(context: vscode.ExtensionContext) {
     configuration,
   });
 
+  context.subscriptions.push(memFs);
+
   context.subscriptions.push(
-    vscode.workspace.registerFileSystemProvider(MemFS.scheme, memFs, { isCaseSensitive: true }),
+    workspace.registerFileSystemProvider(MemFS.scheme, memFs, { isCaseSensitive: true }),
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('memfs.workspaceInit', async () => {
-      const current = vscode.workspace.workspaceFolders?.[0];
+    commands.registerCommand('memfs.workspaceInit', async () => {
+      const current = workspace.workspaceFolders?.[0];
       if (!current) return;
 
       const query = parseQuery(current.uri.query);
       query.set('scheme', current.uri.scheme);
 
-      const uri = vscode.Uri.from({
+      const uri = Uri.from({
         ...current.uri,
         scheme: MemFS.scheme,
         query: query.toString(),
       });
 
-      const yes = await vscode.window.showQuickPick(['Yes', 'No'], {
+      const yes = await window.showQuickPick(['Yes', 'No'], {
         placeHolder: 'Open it with single root?',
       });
 
       if (yes === 'Yes') {
-        vscode.commands.executeCommand('vscode.openFolder', uri);
+        commands.executeCommand('openFolder', uri);
       } else {
-        vscode.workspace.updateWorkspaceFolders(0, 0, {
-          name: 'Test',
+        workspace.updateWorkspaceFolders(0, 0, {
+          name: `${current.name}[MemFS]`,
           uri,
         });
       }
