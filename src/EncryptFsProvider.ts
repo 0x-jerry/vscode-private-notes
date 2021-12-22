@@ -1,7 +1,7 @@
 import path from 'path';
 import { TextEncoder } from 'util';
 import vscode, { Uri, workspace } from 'vscode';
-import { decrypt, encrypt } from './aes';
+import { decrypt, encrypt, isEncryptFile } from './aes';
 import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
 
@@ -58,7 +58,7 @@ export class MemFS implements vscode.FileSystemProvider {
   }
 
   async #getReadContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {
-    if (this.ctx.configuration.isExclude(uri)) {
+    if (!isEncryptFile(content) && this.ctx.configuration.isExclude(uri)) {
       return content;
     }
 

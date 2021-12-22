@@ -1,5 +1,7 @@
 import { randomBytes, pbkdf2Sync, createCipheriv, createDecipheriv } from 'crypto';
 
+const encryptSymbol = Buffer.from([0x01, 0x02, 0x03, 0xff, 0xfe, 0xfd]);
+
 export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array {
   // random initialization vector
   const iv = randomBytes(16);
@@ -20,15 +22,17 @@ export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array 
   const tag = cipher.getAuthTag();
 
   // generate output
-  return Buffer.concat([salt, iv, tag, encrypted]);
+  return Buffer.concat([encryptSymbol, salt, iv, tag, encrypted]);
 }
 
 export function decrypt(encData: Uint8Array, masterKey: Uint8Array): Uint8Array {
   // get salt, iv, tag, content
-  const salt = encData.slice(0, 64); // 64
-  const iv = encData.slice(64, 80); // 16
-  const tag = encData.slice(80, 96); // 16
-  const content = encData.slice(96);
+  const len = encryptSymbol.byteLength;
+  // const symbol = encData.slice(0, len);
+  const salt = encData.slice(len + 0, len + 64); // 64
+  const iv = encData.slice(len + 64, len + 80); // 16
+  const tag = encData.slice(len + 80, len + 96); // 16
+  const content = encData.slice(len + 96);
 
   // derive key using; 32 byte key length
   const key = pbkdf2Sync(masterKey, salt, 2145, 32, 'sha512');
@@ -41,4 +45,11 @@ export function decrypt(encData: Uint8Array, masterKey: Uint8Array): Uint8Array 
   const decrypted = Buffer.concat([decipher.update(content), decipher.final()]);
 
   return decrypted;
+}
+
+export function isEncryptFile(encData: Uint8Array) {
+  const len = encryptSymbol.byteLength;
+  const symbol = encData.slice(0, len);
+
+  return Buffer.compare(symbol, encryptSymbol) === 0;
 }
