@@ -150,12 +150,6 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
     );
   }
 
-  async copy(source: Uri, destination: Uri, options: { overwrite: boolean }): Promise<void> {
-    await workspace.fs.copy(this._getTargetUrl(source), this._getTargetUrl(destination), options);
-
-    this._fireSoon({ type: FileChangeType.Created, uri: destination });
-  }
-
   async delete(uri: Uri, options: { recursive: boolean }): Promise<void> {
     await workspace.fs.delete(this._getTargetUrl(uri), options);
 
