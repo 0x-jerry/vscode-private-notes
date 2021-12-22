@@ -35,10 +35,28 @@
         ]
       }
     ],
+    "configuration": {
+      "title": "TypeScript",
+      "properties": {
+        "writing.encrypt.validator": {
+          "readOnly": true,
+          "type": [
+            "string"
+          ],
+          "default": "",
+          "description": "Use this to validate password."
+        }
+      }
+    },
     "commands": [
       {
         "command": "encrypt.workspaceInit",
         "title": "Setup Workspace",
+        "category": "Encrypt"
+      },
+      {
+        "command": "encrypt.setValidator",
+        "title": "Generate md5 by password",
         "category": "Encrypt"
       }
     ],
@@ -47,6 +65,10 @@
         {
           "command": "encrypt.workspaceInit",
           "when": "workbenchState != workspace"
+        },
+        {
+          "command": "encrypt.setValidator",
+          "when": "resourceScheme == encrypt"
         }
       ]
     },

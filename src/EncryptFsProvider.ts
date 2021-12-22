@@ -11,12 +11,14 @@ import {
   FileSystemProvider,
   FileType,
   Uri,
+  window,
   workspace,
 } from 'vscode';
 import { decrypt, encrypt, isEncryptFile } from './aes';
 import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
 import { Dispose } from './Disposable';
+import { isValidatePassword } from './settings';
 
 interface EncryptFSContext {
   configuration: ConfigurationContext;
@@ -25,9 +27,37 @@ interface EncryptFSContext {
 export class EncryptFS extends Dispose implements FileSystemProvider {
   static scheme = 'encrypt';
 
+  #password = '';
+
   constructor(private ctx: EncryptFSContext) {
     super();
     this.addDisposable(ctx.configuration);
+  }
+
+  async promptPassword() {
+    const s = await window.showInputBox({
+      placeHolder: 'Please input password.',
+      password: true,
+    });
+
+    if (!s) return;
+
+    if (!isValidatePassword(s)) {
+      window.showErrorMessage('Invalid password. Please try again.');
+
+      await this.promptPassword();
+      return;
+    }
+
+    this.#password = s;
+  }
+
+  async getPassword() {
+    if (!isValidatePassword(this.#password)) {
+      await this.promptPassword();
+    }
+
+    return this.#password;
   }
 
   private _getTargetUrl(uri: Uri) {
@@ -84,7 +114,9 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
     }
 
     try {
-      const decryptContent = decrypt(content, new TextEncoder().encode('test'));
+      const pwd = new TextEncoder().encode(await this.getPassword());
+
+      const decryptContent = decrypt(content, pwd);
 
       return decryptContent;
     } catch (error) {
@@ -130,7 +162,9 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
       return content;
     }
 
-    return encrypt(content, new TextEncoder().encode('test'));
+    const pwd = new TextEncoder().encode(await this.getPassword());
+
+    return encrypt(content, pwd);
   }
 
   // --- manage files/folders

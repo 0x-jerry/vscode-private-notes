@@ -1,22 +1,11 @@
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { ConfigurationContext } from './configuration';
 import { EncryptFS } from './EncryptFsProvider';
-import { parseQuery } from './utils';
+import { getSetting, Setting, setValidator } from './settings';
+import { getMemWorkspace, parseQuery } from './utils';
 
 export function activate(context: ExtensionContext) {
   console.log('EncryptFS says "Hello"');
-
-  const configuration = new ConfigurationContext();
-
-  const encryptFs = new EncryptFS({
-    configuration,
-  });
-
-  context.subscriptions.push(encryptFs);
-
-  context.subscriptions.push(
-    workspace.registerFileSystemProvider(EncryptFS.scheme, encryptFs, { isCaseSensitive: true }),
-  );
 
   context.subscriptions.push(
     commands.registerCommand('encrypt.workspaceInit', async () => {
@@ -44,6 +33,45 @@ export function activate(context: ExtensionContext) {
           uri,
         });
       }
+    }),
+  );
+
+  const encryptWs = getMemWorkspace();
+
+  if (!encryptWs) {
+    return;
+  }
+
+  const configuration = new ConfigurationContext();
+
+  const encryptFs = new EncryptFS({
+    configuration,
+  });
+
+  context.subscriptions.push(encryptFs);
+
+  context.subscriptions.push(
+    workspace.registerFileSystemProvider(EncryptFS.scheme, encryptFs, { isCaseSensitive: true }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand('encrypt.setValidator', async () => {
+      const password = await window.showInputBox({
+        placeHolder: 'Please input password',
+      });
+
+      if (!password) return;
+
+      const validator = getSetting<string>(Setting.validator);
+
+      if (validator) {
+        window.showErrorMessage(
+          'Exist one validator, please use `encrypt.updateValidator` to change it.',
+        );
+        return;
+      }
+
+      await setValidator(password);
     }),
   );
 }
