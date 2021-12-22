@@ -21,7 +21,8 @@ function defaultConf(): Configuration {
     exclude: [
       //
       /\.encrypt\.json/,
-      /\.vscode/,
+      /^\.vscode/,
+      /^\/\./,
     ],
   };
 }
@@ -30,6 +31,10 @@ const confFileName = '.encrypt.json';
 
 export class ConfigurationContext extends Dispose {
   conf: Configuration = defaultConf();
+
+  get root() {
+    return getMemWorkspace();
+  }
 
   async #load(root: Uri): Promise<Configuration> {
     try {
@@ -77,17 +82,18 @@ export class ConfigurationContext extends Dispose {
   }
 
   async load(): Promise<void> {
-    const ws = getMemWorkspace();
-    if (!ws?.uri) {
+    if (!this.root) {
       return;
     }
 
-    const conf = await this.#load(ws.uri);
+    const conf = await this.#load(this.root.uri);
     this.conf = conf;
   }
 
   isExclude(file: Uri): boolean {
-    const match = !!this.conf.exclude.find((n) => n.test(file.path));
+    const baseUrl = this.root?.uri.path || '';
+
+    const match = !!this.conf.exclude.find((n) => n.test(file.path.slice(baseUrl.length)));
 
     return match;
   }
