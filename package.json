@@ -20,7 +20,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onFileSystem:memfs",
+    "onFileSystem:encrypt",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -37,26 +37,26 @@
     ],
     "commands": [
       {
-        "command": "memfs.workspaceInit",
+        "command": "encrypt.workspaceInit",
         "title": "Setup Workspace",
-        "category": "MemFS"
+        "category": "Encrypt"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "memfs.workspaceInit",
+          "command": "encrypt.workspaceInit",
           "when": "workbenchState != workspace"
         }
       ]
     },
     "resourceLabelFormatters": [
       {
-        "scheme": "memfs",
+        "scheme": "encrypt",
         "formatting": {
           "label": "${path}",
           "separator": "/",
-          "workspaceSuffix": "MemFS"
+          "workspaceSuffix": "Encrypt"
         }
       }
     ]

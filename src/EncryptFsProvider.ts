@@ -18,30 +18,35 @@ import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
 import { Dispose } from './Disposable';
 
-interface MemFSContext {
+interface EncryptFSContext {
   configuration: ConfigurationContext;
 }
 
-export class MemFS extends Dispose implements FileSystemProvider {
-  static scheme = 'memfs';
+export class EncryptFS extends Dispose implements FileSystemProvider {
+  static scheme = 'encrypt';
 
-  constructor(private ctx: MemFSContext) {
+  constructor(private ctx: EncryptFSContext) {
     super();
     this.addDisposable(ctx.configuration);
   }
 
   private _getTargetUrl(uri: Uri) {
     let scheme = '';
+    let query = '';
 
     for (const item of workspace.workspaceFolders || []) {
-      if (item.uri.scheme === MemFS.scheme) {
-        scheme = parseQuery(item.uri.query).get('scheme') || '';
+      if (item.uri.scheme === EncryptFS.scheme) {
+        const qs = parseQuery(item.uri.query);
+        scheme = qs.get('scheme') || '';
+        qs.delete('scheme');
+        query = qs.toString();
       }
     }
 
     const newUri = Uri.from({
       ...uri,
       scheme,
+      query,
     });
 
     return newUri;

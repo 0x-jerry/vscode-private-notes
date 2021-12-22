@@ -1,25 +1,25 @@
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { ConfigurationContext } from './configuration';
-import { MemFS } from './EncryptFsProvider';
+import { EncryptFS } from './EncryptFsProvider';
 import { parseQuery } from './utils';
 
 export function activate(context: ExtensionContext) {
-  console.log('MemFS says "Hello"');
+  console.log('EncryptFS says "Hello"');
 
   const configuration = new ConfigurationContext();
 
-  const memFs = new MemFS({
+  const encryptFs = new EncryptFS({
     configuration,
   });
 
-  context.subscriptions.push(memFs);
+  context.subscriptions.push(encryptFs);
 
   context.subscriptions.push(
-    workspace.registerFileSystemProvider(MemFS.scheme, memFs, { isCaseSensitive: true }),
+    workspace.registerFileSystemProvider(EncryptFS.scheme, encryptFs, { isCaseSensitive: true }),
   );
 
   context.subscriptions.push(
-    commands.registerCommand('memfs.workspaceInit', async () => {
+    commands.registerCommand('encrypt.workspaceInit', async () => {
       const current = workspace.workspaceFolders?.[0];
       if (!current) return;
 
@@ -28,7 +28,7 @@ export function activate(context: ExtensionContext) {
 
       const uri = Uri.from({
         ...current.uri,
-        scheme: MemFS.scheme,
+        scheme: EncryptFS.scheme,
         query: query.toString(),
       });
 
@@ -37,10 +37,10 @@ export function activate(context: ExtensionContext) {
       });
 
       if (yes === 'Yes') {
-        commands.executeCommand('openFolder', uri);
+        commands.executeCommand('vscode.openFolder', uri);
       } else {
         workspace.updateWorkspaceFolders(0, 0, {
-          name: `${current.name}[MemFS]`,
+          name: `${current.name}[${EncryptFS.scheme}]`,
           uri,
         });
       }
