@@ -18,7 +18,11 @@ export interface UserConfiguration {
 
 function defaultConf(): Configuration {
   return {
-    exclude: [/\.encrypt\.json/],
+    exclude: [
+      //
+      /\.encrypt\.json/,
+      /\.vscode/,
+    ],
   };
 }
 
