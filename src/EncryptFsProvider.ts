@@ -14,7 +14,7 @@ import {
   window,
   workspace,
 } from 'vscode';
-import { decrypt, encrypt, isEncryptFile } from './aes';
+import { decrypt, encrypt, isEncryptedFile } from './aes';
 import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
 import { Dispose } from './Disposable';
@@ -109,7 +109,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   }
 
   async #getReadContent(content: Uint8Array): Promise<Uint8Array> {
-    if (!isEncryptFile(content)) {
+    if (!isEncryptedFile(content)) {
       return content;
     }
 
