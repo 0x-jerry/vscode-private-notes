@@ -18,7 +18,7 @@ import { decrypt, encrypt, isEncryptedFile } from './aes';
 import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
 import { Dispose } from './Disposable';
-import { isValidatePassword } from './settings';
+import { isValidPassword } from './settings';
 
 interface EncryptFSContext {
   configuration: ConfigurationContext;
@@ -42,7 +42,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
 
     if (!s) return;
 
-    if (!isValidatePassword(s)) {
+    if (!isValidPassword(s)) {
       window.showErrorMessage('Invalid password. Please try again.');
 
       await this.promptPassword();
@@ -53,7 +53,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   }
 
   async getPassword() {
-    if (!isValidatePassword(this.#password)) {
+    if (!isValidPassword(this.#password)) {
       await this.promptPassword();
     }
 

@@ -3,21 +3,24 @@ import { workspace } from 'vscode';
 import { decrypt, encrypt } from './aes';
 
 export enum Setting {
-  validator = 'encrypt.validator',
+  validator = 'encrypt.password',
 }
+
+const confSection = 'writing';
 
 const enc = new TextEncoder();
 
 export function getSetting<T = string>(key: Setting) {
-  return workspace.getConfiguration('writing').get<T>(key);
+  return workspace.getConfiguration(confSection).get<T>(key);
 }
 
 export function setSetting<T = string>(key: Setting, value: T) {
-  return workspace.getConfiguration('writing').update(key, value);
+  return workspace.getConfiguration(confSection).update(key, value);
 }
 
-export function isValidatePassword(pwd: string) {
+export function isValidPassword(pwd: string) {
   const raw = getSetting(Setting.validator);
+
   if (!raw) {
     return true;
   }
@@ -32,7 +35,7 @@ export function isValidatePassword(pwd: string) {
   }
 }
 
-export async function setValidator(password: string) {
+export async function setPassword(password: string) {
   const res = encrypt(enc.encode(password), enc.encode(password));
 
   const text = Buffer.from(res).toString('base64');

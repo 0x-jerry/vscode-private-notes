@@ -1,6 +1,6 @@
 import { Uri, workspace } from 'vscode';
 import { Dispose } from './Disposable';
-import { getMemWorkspace } from './utils';
+import { getEncryptWorkspace } from './utils';
 
 export interface Configuration {
   /**
@@ -33,7 +33,7 @@ export class ConfigurationContext extends Dispose {
   conf: Configuration = defaultConf();
 
   get root() {
-    return getMemWorkspace();
+    return getEncryptWorkspace();
   }
 
   async #load(root: Uri): Promise<Configuration> {

@@ -38,36 +38,54 @@
     "configuration": {
       "title": "TypeScript",
       "properties": {
-        "writing.encrypt.validator": {
+        "writing.encrypt.password": {
           "readOnly": true,
           "type": [
             "string"
           ],
           "default": "",
-          "description": "Use this to validate password."
+          "description": "Encrypted password."
         }
       }
     },
     "commands": [
       {
-        "command": "encrypt.workspaceInit",
+        "command": "encrypt.initWorkspace",
         "title": "Setup Workspace",
         "category": "Encrypt"
       },
       {
-        "command": "encrypt.setValidator",
-        "title": "Generate md5 by password",
+        "command": "encrypt.changePassword",
+        "title": "Set or change password",
+        "category": "Encrypt"
+      },
+      {
+        "command": "encrypt.encryptAllFiles",
+        "title": "Encrypt all files",
+        "category": "Encrypt"
+      },
+      {
+        "command": "encrypt.decryptAllFiles",
+        "title": "Decrypt all files",
         "category": "Encrypt"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "encrypt.workspaceInit",
+          "command": "encrypt.initWorkspace",
           "when": "workbenchState != workspace"
         },
         {
-          "command": "encrypt.setValidator",
+          "command": "encrypt.changePassword",
+          "when": "resourceScheme == encrypt"
+        },
+        {
+          "command": "encrypt.encryptAllFiles",
+          "when": "resourceScheme == encrypt"
+        },
+        {
+          "command": "encrypt.decryptAllFiles",
           "when": "resourceScheme == encrypt"
         }
       ]
