@@ -1,7 +1,9 @@
-import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
+import { commands, ExtensionContext, Uri, workspace } from 'vscode';
+import { globalCtx } from './context';
 import { reEncryptAllFiles } from './crypto';
 import { EncryptFS } from './EncryptFsProvider';
-import { getSetting, isValidPassword, setPassword, Setting } from './settings';
+import { promptPassword, promptNewPassword } from './promptPassword';
+import { getSetting, setPassword, Setting } from './settings';
 import { parseQuery } from './utils';
 
 enum Commands {
@@ -11,50 +13,13 @@ enum Commands {
   DecryptAllFiles = 'encrypt.decryptAllFiles',
 }
 
-async function promptPassword(placeHolder: string): Promise<string | undefined> {
-  const password = await window.showInputBox({
-    placeHolder: placeHolder,
-    password: true,
-  });
-
-  if (!password) return;
-
-  if (isValidPassword(password)) {
-    return password;
-  }
-
-  window.showErrorMessage('Invalid password, please try again.');
-
-  return promptPassword(placeHolder);
-}
-
-async function promptNewPassword(): Promise<string | undefined> {
-  const password = await window.showInputBox({
-    placeHolder: 'Please input new password',
-  });
-
-  if (!password) return;
-
-  const passwordAgain = await window.showInputBox({
-    placeHolder: 'Please input new password again',
-  });
-
-  if (!passwordAgain) return;
-
-  if (passwordAgain === password) {
-    return password;
-  }
-
-  window.showErrorMessage('Password not match, please try again.');
-
-  return promptNewPassword();
-}
-
 async function setPasswordCommand() {
-  const oldPasswordExist = getSetting<string>(Setting.validator);
+  const oldPasswordExist = getSetting<string>(Setting.password);
+
+  let oldPassword: string | undefined;
 
   if (oldPasswordExist) {
-    const oldPassword = await promptPassword('Please input the old password');
+    oldPassword = await promptPassword('Please input the old password');
     if (!oldPassword) return;
   }
 
@@ -62,13 +27,21 @@ async function setPasswordCommand() {
 
   if (!newPassword) return;
 
-  // re-encrypt all files.
-  await reEncryptAllFiles();
-
   await setPassword(newPassword);
+
+  // update master key
+  globalCtx.configuration.setMasterKey(newPassword);
+
+  // re-encrypt all files.
+  await reEncryptAllFiles(globalCtx.enc.encode(newPassword), globalCtx.enc.encode(oldPassword));
 }
 
-function encryptAllFiles() {}
+async function encryptAllFiles() {
+  const password = await promptPassword('Please input password');
+  if (!password) return;
+
+  await reEncryptAllFiles(globalCtx.enc.encode(password));
+}
 
 function decryptAllFiles() {}
 

@@ -1,5 +1,7 @@
 import { Uri, workspace } from 'vscode';
+import { globalCtx } from './context';
 import { Dispose } from './Disposable';
+import { promptPassword } from './promptPassword';
 import { getEncryptWorkspace } from './utils';
 
 export interface Configuration {
@@ -32,8 +34,16 @@ const confFileName = '.encrypt.json';
 export class ConfigurationContext extends Dispose {
   conf: Configuration = defaultConf();
 
+  #masterKey: Uint8Array = Buffer.alloc(0);
+
   get root() {
     return getEncryptWorkspace();
+  }
+
+  constructor() {
+    super();
+    this.watchConfFile();
+    this.load();
   }
 
   async #load(root: Uri): Promise<Configuration> {
@@ -52,15 +62,23 @@ export class ConfigurationContext extends Dispose {
 
       return conf;
     } catch (error) {
-      console.error(error);
       return defaultConf();
     }
   }
 
-  constructor() {
-    super();
-    this.watchConfFile();
-    this.load();
+  setMasterKey(masterKey = '') {
+    this.#masterKey = globalCtx.enc.encode(masterKey);
+  }
+
+  async getMasterKey(): Promise<Uint8Array> {
+    if (!this.#masterKey.length) {
+      const pwd = await promptPassword();
+      if (!pwd) throw new Error('Cancel prompt');
+
+      this.setMasterKey(pwd);
+    }
+
+    return this.#masterKey;
   }
 
   private watchConfFile() {

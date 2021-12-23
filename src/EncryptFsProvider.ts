@@ -1,5 +1,4 @@
 import path from 'path';
-import { TextEncoder } from 'util';
 import {
   Disposable,
   Event,
@@ -14,11 +13,10 @@ import {
   window,
   workspace,
 } from 'vscode';
-import { decrypt, encrypt, isEncryptedFile } from './aes';
 import { parseQuery } from './utils';
 import { ConfigurationContext } from './configuration';
 import { Dispose } from './Disposable';
-import { isValidPassword } from './settings';
+import { getReadContent, getSavedContent } from './crypto';
 
 interface EncryptFSContext {
   configuration: ConfigurationContext;
@@ -27,37 +25,9 @@ interface EncryptFSContext {
 export class EncryptFS extends Dispose implements FileSystemProvider {
   static scheme = 'encrypt';
 
-  #password = '';
-
   constructor(private ctx: EncryptFSContext) {
     super();
     this.addDisposable(ctx.configuration);
-  }
-
-  async promptPassword() {
-    const s = await window.showInputBox({
-      placeHolder: 'Please input password.',
-      password: true,
-    });
-
-    if (!s) return;
-
-    if (!isValidPassword(s)) {
-      window.showErrorMessage('Invalid password. Please try again.');
-
-      await this.promptPassword();
-      return;
-    }
-
-    this.#password = s;
-  }
-
-  async getPassword() {
-    if (!isValidPassword(this.#password)) {
-      await this.promptPassword();
-    }
-
-    return this.#password;
   }
 
   private _getTargetUrl(uri: Uri) {
@@ -105,24 +75,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
 
     const result = await workspace.fs.readFile(newUri);
 
-    return this.#getReadContent(result);
-  }
-
-  async #getReadContent(content: Uint8Array): Promise<Uint8Array> {
-    if (!isEncryptedFile(content)) {
-      return content;
-    }
-
-    try {
-      const pwd = new TextEncoder().encode(await this.getPassword());
-
-      const decryptContent = decrypt(content, pwd);
-
-      return decryptContent;
-    } catch (error) {
-      console.error('decrypt error:', error);
-      return content;
-    }
+    return getReadContent(uri, result);
   }
 
   async writeFile(
@@ -146,7 +99,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
 
     const newUri = this._getTargetUrl(uri);
 
-    const encryptContent = await this.#getSaveContent(uri, content);
+    const encryptContent = await getSavedContent(uri, content);
 
     await workspace.fs.writeFile(newUri, encryptContent);
 
@@ -155,16 +108,6 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
     } else {
       this._fireSoon({ type: FileChangeType.Changed, uri });
     }
-  }
-
-  async #getSaveContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {
-    if (this.ctx.configuration.isExclude(uri)) {
-      return content;
-    }
-
-    const pwd = new TextEncoder().encode(await this.getPassword());
-
-    return encrypt(content, pwd);
   }
 
   // --- manage files/folders

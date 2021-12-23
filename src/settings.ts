@@ -1,14 +1,12 @@
-import { TextEncoder } from 'util';
 import { workspace } from 'vscode';
 import { decrypt, encrypt } from './aes';
+import { globalCtx } from './context';
 
 export enum Setting {
-  validator = 'encrypt.password',
+  password = 'encrypt.password',
 }
 
 const confSection = 'writing';
-
-const enc = new TextEncoder();
 
 export function getSetting<T = string>(key: Setting) {
   return workspace.getConfiguration(confSection).get<T>(key);
@@ -18,17 +16,13 @@ export function setSetting<T = string>(key: Setting, value: T) {
   return workspace.getConfiguration(confSection).update(key, value);
 }
 
-export function isValidPassword(pwd: string) {
-  const raw = getSetting(Setting.validator);
-
-  if (!raw) {
-    return true;
-  }
+export function isValidPassword(pwd: string): boolean {
+  const raw = getSetting(Setting.password) || '';
 
   const buf = Buffer.from(raw, 'base64');
 
   try {
-    decrypt(buf, enc.encode(pwd));
+    decrypt(buf, globalCtx.enc.encode(pwd));
     return true;
   } catch {
     return false;
@@ -36,9 +30,13 @@ export function isValidPassword(pwd: string) {
 }
 
 export async function setPassword(password: string) {
-  const res = encrypt(enc.encode(password), enc.encode(password));
+  const res = encrypt(globalCtx.enc.encode(password), globalCtx.enc.encode(password));
 
   const text = Buffer.from(res).toString('base64');
 
-  await setSetting(Setting.validator, text);
+  await setSetting(Setting.password, text);
+}
+
+export function hasPassword() {
+  return !!getSetting(Setting.password);
 }

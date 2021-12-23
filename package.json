@@ -75,18 +75,6 @@
         {
           "command": "encrypt.initWorkspace",
           "when": "workbenchState != workspace"
-        },
-        {
-          "command": "encrypt.changePassword",
-          "when": "resourceScheme == encrypt"
-        },
-        {
-          "command": "encrypt.encryptAllFiles",
-          "when": "resourceScheme == encrypt"
-        },
-        {
-          "command": "encrypt.decryptAllFiles",
-          "when": "resourceScheme == encrypt"
         }
       ]
     },

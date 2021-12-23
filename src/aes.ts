@@ -3,6 +3,8 @@ import { randomBytes, pbkdf2Sync, createCipheriv, createDecipheriv } from 'crypt
 const encryptSign = Buffer.from([0x01, 0x02, 0x03, 0xff, 0xfe, 0xfd]);
 
 export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array {
+  if (!content.length) return content;
+
   // random initialization vector
   const iv = randomBytes(16);
 

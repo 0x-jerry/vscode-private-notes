@@ -19,7 +19,7 @@ export function getEncryptWorkspace() {
 export async function travesDir(
   rootDir: Uri,
   cb: (uri: Uri) => any | Promise<any>,
-  isExclude?: (uri: Uri) => boolean | Promise<boolean>,
+  isExclude?: (uri: Uri, fileType: FileType) => boolean | Promise<boolean>,
 ): Promise<void> {
   const files = await workspace.fs.readDirectory(rootDir);
 
@@ -27,10 +27,13 @@ export async function travesDir(
 
   for (const [filePath, fileType] of files) {
     const uri = Uri.joinPath(rootDir, filePath);
-    tasks.push(cb(uri));
 
-    if (fileType === FileType.Directory && !isExclude?.(uri)) {
-      travesDir(uri, cb, isExclude);
+    if (!isExclude?.(uri, fileType)) {
+      tasks.push(cb(uri));
+
+      if (fileType === FileType.Directory) {
+        travesDir(uri, cb, isExclude);
+      }
     }
   }
 
