@@ -39,3 +39,25 @@ export async function travesDir(
 
   await Promise.all(tasks);
 }
+
+export function getTargetUri(uri: Uri) {
+  let scheme = '';
+  let query = '';
+
+  for (const item of workspace.workspaceFolders || []) {
+    if (item.uri.scheme === EncryptFS.scheme) {
+      const qs = parseQuery(item.uri.query);
+      scheme = qs.get('scheme') || '';
+      qs.delete('scheme');
+      query = qs.toString();
+    }
+  }
+
+  const newUri = Uri.from({
+    ...uri,
+    scheme,
+    query,
+  });
+
+  return newUri;
+}

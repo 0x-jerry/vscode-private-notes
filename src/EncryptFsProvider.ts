@@ -13,7 +13,7 @@ import {
   window,
   workspace,
 } from 'vscode';
-import { parseQuery } from './utils';
+import { getTargetUri } from './utils';
 import { ConfigurationContext } from './configuration';
 import { Dispose } from './Disposable';
 import { getReadContent, getSavedContent } from './crypto';
@@ -30,38 +30,16 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
     this.addDisposable(ctx.configuration);
   }
 
-  private _getTargetUrl(uri: Uri) {
-    let scheme = '';
-    let query = '';
-
-    for (const item of workspace.workspaceFolders || []) {
-      if (item.uri.scheme === EncryptFS.scheme) {
-        const qs = parseQuery(item.uri.query);
-        scheme = qs.get('scheme') || '';
-        qs.delete('scheme');
-        query = qs.toString();
-      }
-    }
-
-    const newUri = Uri.from({
-      ...uri,
-      scheme,
-      query,
-    });
-
-    return newUri;
-  }
-
   // --- manage file metadata
 
   async stat(uri: Uri): Promise<FileStat> {
-    const newUri = this._getTargetUrl(uri);
+    const newUri = getTargetUri(uri);
 
     return workspace.fs.stat(newUri);
   }
 
   async readDirectory(uri: Uri): Promise<[string, FileType][]> {
-    const newUri = this._getTargetUrl(uri);
+    const newUri = getTargetUri(uri);
 
     const result = await workspace.fs.readDirectory(newUri);
 
@@ -71,11 +49,16 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   // --- manage file contents
 
   async readFile(uri: Uri): Promise<Uint8Array> {
-    const newUri = this._getTargetUrl(uri);
+    const newUri = getTargetUri(uri);
 
     const result = await workspace.fs.readFile(newUri);
 
-    return getReadContent(uri, result);
+    try {
+      return await getReadContent(uri, result);
+    } catch (error) {
+      window.showErrorMessage(`Decrypt file [${uri.toString()}] failed: ${String(error)}`);
+      return result;
+    }
   }
 
   async writeFile(
@@ -97,7 +80,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
       throw FileSystemError.FileExists(uri);
     }
 
-    const newUri = this._getTargetUrl(uri);
+    const newUri = getTargetUri(uri);
 
     const encryptContent = await getSavedContent(uri, content);
 
@@ -113,8 +96,8 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   // --- manage files/folders
 
   async rename(oldUri: Uri, newUri: Uri, options: { overwrite: boolean }): Promise<void> {
-    const newOldUri = this._getTargetUrl(oldUri);
-    const newNewUri = this._getTargetUrl(newUri);
+    const newOldUri = getTargetUri(oldUri);
+    const newNewUri = getTargetUri(newUri);
 
     // await workspace.fs.rename(newOldUri, newNewUri, options);
 
@@ -128,7 +111,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   }
 
   async delete(uri: Uri, options: { recursive: boolean }): Promise<void> {
-    await workspace.fs.delete(this._getTargetUrl(uri), options);
+    await workspace.fs.delete(getTargetUri(uri), options);
 
     const dirname = uri.with({ path: path.dirname(uri.path) });
 
@@ -139,7 +122,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   }
 
   async createDirectory(uri: Uri): Promise<void> {
-    await workspace.fs.createDirectory(this._getTargetUrl(uri));
+    await workspace.fs.createDirectory(getTargetUri(uri));
 
     const dirname = uri.with({ path: path.dirname(uri.path) });
 
@@ -152,7 +135,7 @@ export class EncryptFS extends Dispose implements FileSystemProvider {
   // --- lookup
 
   private async _lookup(uri: Uri, silent: boolean): Promise<FileStat | undefined> {
-    const newUri = this._getTargetUrl(uri);
+    const newUri = getTargetUri(uri);
 
     if (!silent) {
       return workspace.fs.stat(newUri);

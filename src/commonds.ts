@@ -1,6 +1,6 @@
-import { commands, ExtensionContext, Uri, workspace } from 'vscode';
+import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { globalCtx } from './context';
-import { reEncryptAllFiles } from './crypto';
+import { decryptAllFiles, reEncryptAllFiles } from './crypto';
 import { EncryptFS } from './EncryptFsProvider';
 import { promptPassword, promptNewPassword } from './promptPassword';
 import { getSetting, setPassword, Setting } from './settings';
@@ -20,12 +20,18 @@ async function setPasswordCommand() {
 
   if (oldPasswordExist) {
     oldPassword = await promptPassword('Please input the old password');
-    if (!oldPassword) return;
+    if (!oldPassword) {
+      window.showInformationMessage('Reset password canceled');
+      return;
+    }
   }
 
   const newPassword = await promptNewPassword();
 
-  if (!newPassword) return;
+  if (!newPassword) {
+    window.showInformationMessage('Set password canceled');
+    return;
+  }
 
   await setPassword(newPassword);
 
@@ -36,14 +42,28 @@ async function setPasswordCommand() {
   await reEncryptAllFiles(globalCtx.enc.encode(newPassword), globalCtx.enc.encode(oldPassword));
 }
 
-async function encryptAllFiles() {
+async function encryptAllFilesCommand() {
   const password = await promptPassword('Please input password');
   if (!password) return;
 
   await reEncryptAllFiles(globalCtx.enc.encode(password));
 }
 
-function decryptAllFiles() {}
+async function decryptAllFilesCommand() {
+  const res = await window.showQuickPick(['Yes', 'No'], {
+    placeHolder: `This action will clear password, are you sure ?`,
+  });
+
+  if (res !== 'Yes') return;
+
+  const oldMasterKey = await globalCtx.configuration.getMasterKey();
+  if (!oldMasterKey) return;
+
+  await setPassword();
+  await decryptAllFiles(oldMasterKey);
+
+  globalCtx.configuration.setMasterKey();
+}
 
 async function initWorkspace() {
   const current = workspace.workspaceFolders?.[0];
@@ -64,6 +84,10 @@ async function initWorkspace() {
 export function registerCommands(ctx: ExtensionContext) {
   ctx.subscriptions.push(commands.registerCommand(Commands.InitWorkspace, initWorkspace));
   ctx.subscriptions.push(commands.registerCommand(Commands.SetPassword, setPasswordCommand));
-  ctx.subscriptions.push(commands.registerCommand(Commands.EncryptAllFiles, encryptAllFiles));
-  ctx.subscriptions.push(commands.registerCommand(Commands.DecryptAllFiles, decryptAllFiles));
+  ctx.subscriptions.push(
+    commands.registerCommand(Commands.EncryptAllFiles, encryptAllFilesCommand),
+  );
+  ctx.subscriptions.push(
+    commands.registerCommand(Commands.DecryptAllFiles, decryptAllFilesCommand),
+  );
 }

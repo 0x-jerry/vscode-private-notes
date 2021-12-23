@@ -29,7 +29,13 @@ export function isValidPassword(pwd: string): boolean {
   }
 }
 
-export async function setPassword(password: string) {
+export async function setPassword(password = '') {
+  // clear password
+  if (!password) {
+    await setSetting(Setting.password, '');
+    return;
+  }
+
   const res = encrypt(globalCtx.enc.encode(password), globalCtx.enc.encode(password));
 
   const text = Buffer.from(res).toString('base64');
