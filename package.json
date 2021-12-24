@@ -3,7 +3,7 @@
   "displayName": "vscode-writing",
   "description": "Auto encrypt and decrypt file in a virtual workspace.",
   "license": "MIT",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "publisher": "fantasy",
   "author": "Jerry Wang <x.jerry.wang@gmail.com>",
   "bugs": {
