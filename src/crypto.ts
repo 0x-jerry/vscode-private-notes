@@ -17,7 +17,9 @@ export async function reEncryptAllFiles(newMasterKey: Uint8Array, oldMasterKey?:
     async () => {
       await travesDir(
         current.uri,
-        async (uri) => {
+        async (uri, fileType) => {
+          if (fileType !== FileType.File) return;
+
           // use realUri to avoid effect by EncryptFSProvider.
           const realUri = getTargetUri(uri);
 
@@ -30,8 +32,8 @@ export async function reEncryptAllFiles(newMasterKey: Uint8Array, oldMasterKey?:
 
           await workspace.fs.writeFile(realUri, encryptedContent);
         },
-        (uri, fileType) => {
-          return globalCtx.configuration.isExclude(uri) || fileType !== FileType.File;
+        (uri) => {
+          return globalCtx.configuration.isExclude(uri);
         },
       );
     },
@@ -51,7 +53,8 @@ export async function decryptAllFiles(masterKey: Uint8Array) {
     async () => {
       await travesDir(
         current.uri,
-        async (uri) => {
+        async (uri, fileType) => {
+          if (fileType !== FileType.File) return;
           // use realUri to avoid effect by EncryptFSProvider.
           const realUri = getTargetUri(uri);
 
@@ -63,8 +66,8 @@ export async function decryptAllFiles(masterKey: Uint8Array) {
 
           await workspace.fs.writeFile(realUri, decryptContent);
         },
-        (uri, fileType) => {
-          return globalCtx.configuration.isExclude(uri) || fileType !== FileType.File;
+        (uri) => {
+          return globalCtx.configuration.isExclude(uri);
         },
       );
     },
