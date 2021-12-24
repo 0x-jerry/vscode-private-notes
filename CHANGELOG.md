@@ -1,3 +1,7 @@
+## [0.2.1](https://github.com/cwxyz007/vscode-writing/compare/v0.2.0...v0.2.1) (2021-12-24)
+
+
+
 # [0.2.0](https://github.com/cwxyz007/vscode-writing/compare/v0.1.0...v0.2.0) (2021-12-24)
 
 
