@@ -28,9 +28,13 @@ export async function travesDir(
   for (const [filePath, fileType] of files) {
     const uri = Uri.joinPath(rootDir, filePath);
 
-    tasks.push(cb(uri, fileType));
+    const excluded = isExclude?.(uri);
 
-    if (!isExclude?.(uri) && fileType === FileType.Directory) {
+    if (!excluded) {
+      tasks.push(cb(uri, fileType));
+    }
+
+    if (!excluded && fileType === FileType.Directory) {
       travesDir(uri, cb, isExclude);
     }
   }
