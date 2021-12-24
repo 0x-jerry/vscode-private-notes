@@ -30,7 +30,7 @@ Do not auto encrypt and decrypt `jpg/png` file.
 
 ```json
 {
-  "exclude": ["\\.(jpg|png)$"]
+  "exclude": ["**/*.jpg", "**/*.png"]
 }
 ```
 

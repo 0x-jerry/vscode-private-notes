@@ -30,7 +30,7 @@
 
 ```json
 {
-  "exclude": ["\\.(jpg|png)$"]
+  "exclude": ["**/*.jpg", "**/*.png"]
 }
 ```
 
