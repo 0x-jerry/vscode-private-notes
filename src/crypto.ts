@@ -4,7 +4,7 @@ import { globalCtx } from './context';
 import { hasPassword } from './settings';
 import { getEncryptWorkspace, getTargetUri, travesDir } from './utils';
 
-export async function reEncryptAllFiles(newMasterKey: Uint8Array, oldMasterKey?: Uint8Array) {
+export async function reEncryptAllFiles(newMasterKey: Uint8Array, oldMasterKey: Uint8Array) {
   const current = getEncryptWorkspace();
   if (!current) return;
 
@@ -27,7 +27,7 @@ export async function reEncryptAllFiles(newMasterKey: Uint8Array, oldMasterKey?:
           const isEncrypt = isEncryptedFile(content);
 
           const encryptedContent = isEncrypt
-            ? reEncryptContent(content, newMasterKey, oldMasterKey)
+            ? reEncrypt(content, newMasterKey, oldMasterKey)
             : encrypt(content, newMasterKey);
 
           await workspace.fs.writeFile(realUri, encryptedContent);
@@ -72,18 +72,6 @@ export async function decryptAllFiles(masterKey: Uint8Array) {
       );
     },
   );
-}
-
-function reEncryptContent(
-  content: Uint8Array,
-  newMasterKey: Uint8Array,
-  oldMasterKey?: Uint8Array,
-) {
-  if (oldMasterKey) {
-    return reEncrypt(content, oldMasterKey, newMasterKey);
-  }
-
-  return encrypt(content, newMasterKey);
 }
 
 export async function getSavedContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {

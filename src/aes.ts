@@ -56,7 +56,7 @@ export function isEncryptedFile(encData: Uint8Array) {
   return encryptSign.equals(sign);
 }
 
-export function reEncrypt(encData: Uint8Array, oldMasterKey: Uint8Array, newMasterKey: Uint8Array) {
+export function reEncrypt(encData: Uint8Array, newMasterKey: Uint8Array, oldMasterKey: Uint8Array) {
   const decrypted = decrypt(encData, oldMasterKey);
   const encrypted = encrypt(decrypted, newMasterKey);
 

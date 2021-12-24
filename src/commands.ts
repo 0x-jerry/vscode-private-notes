@@ -46,7 +46,7 @@ async function encryptAllFilesCommand() {
   const password = await promptPassword('Please input password');
   if (!password) return;
 
-  await reEncryptAllFiles(globalCtx.enc.encode(password));
+  await reEncryptAllFiles(globalCtx.enc.encode(password), globalCtx.enc.encode(password));
 }
 
 async function decryptAllFilesCommand() {
