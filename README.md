@@ -1,17 +1,32 @@
 # VSCode Writing
 
-A writing extension for myself.
+[English Version](./README.en.md)
 
-## TODO
+一个专注隐私的插件，利用 `vscode` [虚拟工作区][virtual-workspace]，自动加解密当前工作区的文件。
 
-- [x] More highlight
-- [x] Auto encrypt and decrypt files (vscode FileSystemProvider)
-- [ ] Change password and re-encrypt all file
+## 配置
 
-## Encrypt File System Provider
+在项目根目录中创建 `/.encrypt.json` 文件，插件会自动读取配置。
 
-Use memory workspace to load an exist workspace. and sync with all edit action.
+具体配置项，请参考 [UserConfiguration](./src/configuration.ts) 类型。
 
-## More Highlight
+示例：
 
-![highlight](./docs/highlight.png)
+不自动加密 `jpg/png` 图片
+
+```json
+{
+  "exclude": ["\\.(jpg|png)$"]
+}
+```
+
+## 限制
+
+部分插件无法使用。
+
+## 实现方式
+
+用 `vscode` 的虚拟工作区（FileSystemProvider），代理所有的文件 **读取/写入** 操作，
+在读取的时候，用 `aes-256-gcm` 解密，在写入的时候，用 `aes-256-gcm` 加密。
+
+[virtual-workspace]: https://code.visualstudio.com/api/extension-guides/virtual-workspaces

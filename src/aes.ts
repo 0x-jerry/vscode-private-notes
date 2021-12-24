@@ -30,7 +30,7 @@ export function encrypt(content: Uint8Array, masterKey: Uint8Array): Uint8Array 
 export function decrypt(encData: Uint8Array, masterKey: Uint8Array): Uint8Array {
   const len = encryptSign.byteLength;
 
-  // get salt, iv, tag, content
+  // extract salt, iv, tag, content
   const salt = encData.slice(len + 0, len + 64); // 64
   const iv = encData.slice(len + 64, len + 80); // 16
   const tag = encData.slice(len + 80, len + 96); // 16
