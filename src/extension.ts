@@ -3,6 +3,7 @@ import { registerCommands } from './commands';
 import { ConfigurationContext } from './configuration';
 import { globalCtx } from './context';
 import { EncryptFSProvider } from './EncryptFsProvider';
+import { Status } from './statusbar';
 import { getEncryptWorkspace } from './utils';
 
 export function activate(context: ExtensionContext) {
@@ -21,6 +22,9 @@ export function activate(context: ExtensionContext) {
   });
 
   context.subscriptions.push(encryptFs);
+
+  const status = new Status();
+  context.subscriptions.push(status);
 
   context.subscriptions.push(
     workspace.registerFileSystemProvider(EncryptFSProvider.scheme, encryptFs, {
