@@ -36,10 +36,6 @@ export class ConfigurationContext extends Dispose {
 
   #masterKey: Uint8Array = Buffer.alloc(0);
 
-  get root() {
-    return getEncryptWorkspace();
-  }
-
   constructor() {
     super();
     this.watchConfFile();
@@ -57,7 +53,10 @@ export class ConfigurationContext extends Dispose {
       const parsedConf: UserConfiguration = JSON.parse(confFile.toString());
 
       for (const exclude of parsedConf.exclude || []) {
-        conf.exclude.push(new RegExp(exclude));
+        // Ignore empty rule.
+        if (exclude) {
+          conf.exclude.push(new RegExp(exclude));
+        }
       }
 
       return conf;
@@ -100,16 +99,20 @@ export class ConfigurationContext extends Dispose {
   }
 
   async load(): Promise<void> {
-    if (!this.root) {
+    const root = getEncryptWorkspace();
+    if (!root) {
       return;
     }
 
-    const conf = await this.#load(this.root.uri);
+    const conf = await this.#load(root.uri);
     this.conf = conf;
   }
 
   isExclude(file: Uri): boolean {
-    const baseUrl = this.root?.uri.path || '';
+    const root = getEncryptWorkspace();
+    if (!root) return true;
+
+    const baseUrl = root.uri.path || '';
 
     const match = !!this.conf.exclude.find((n) => n.test(file.path.slice(baseUrl.length)));
 

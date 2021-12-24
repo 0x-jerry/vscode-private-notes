@@ -1,7 +1,7 @@
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { globalCtx } from './context';
 import { decryptAllFiles, reEncryptAllFiles } from './crypto';
-import { EncryptFS } from './EncryptFsProvider';
+import { EncryptFSProvider } from './EncryptFsProvider';
 import { promptPassword, promptNewPassword } from './promptPassword';
 import { getSetting, setPassword, Setting } from './settings';
 import { parseQuery } from './utils';
@@ -65,7 +65,7 @@ async function decryptAllFilesCommand() {
   globalCtx.configuration.setMasterKey();
 }
 
-async function initWorkspace() {
+async function initWorkspaceCommand() {
   const current = workspace.workspaceFolders?.[0];
   if (!current) return;
 
@@ -74,7 +74,7 @@ async function initWorkspace() {
 
   const uri = Uri.from({
     ...current.uri,
-    scheme: EncryptFS.scheme,
+    scheme: EncryptFSProvider.scheme,
     query: query.toString(),
   });
 
@@ -82,7 +82,7 @@ async function initWorkspace() {
 }
 
 export function registerCommands(ctx: ExtensionContext) {
-  ctx.subscriptions.push(commands.registerCommand(Commands.InitWorkspace, initWorkspace));
+  ctx.subscriptions.push(commands.registerCommand(Commands.InitWorkspace, initWorkspaceCommand));
   ctx.subscriptions.push(commands.registerCommand(Commands.SetPassword, setPasswordCommand));
   ctx.subscriptions.push(
     commands.registerCommand(Commands.EncryptAllFiles, encryptAllFilesCommand),

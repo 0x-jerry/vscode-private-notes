@@ -1,6 +1,6 @@
 import { URL } from 'url';
 import { FileType, Uri, workspace } from 'vscode';
-import { EncryptFS } from './EncryptFsProvider';
+import { EncryptFSProvider } from './EncryptFsProvider';
 
 export function parseQuery(query: string) {
   const url = new URL('/?' + query, 'http://xxx.com');
@@ -10,7 +10,7 @@ export function parseQuery(query: string) {
 
 export function getEncryptWorkspace() {
   for (const item of workspace.workspaceFolders || []) {
-    if (item.uri.scheme === EncryptFS.scheme) {
+    if (item.uri.scheme === EncryptFSProvider.scheme) {
       return item;
     }
   }
@@ -45,7 +45,7 @@ export function getTargetUri(uri: Uri) {
   let query = '';
 
   for (const item of workspace.workspaceFolders || []) {
-    if (item.uri.scheme === EncryptFS.scheme) {
+    if (item.uri.scheme === EncryptFSProvider.scheme) {
       const qs = parseQuery(item.uri.query);
       scheme = qs.get('scheme') || '';
       qs.delete('scheme');

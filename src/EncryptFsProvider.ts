@@ -22,7 +22,7 @@ interface EncryptFSContext {
   configuration: ConfigurationContext;
 }
 
-export class EncryptFS extends Dispose implements FileSystemProvider {
+export class EncryptFSProvider extends Dispose implements FileSystemProvider {
   static scheme = 'encrypt';
 
   constructor(private ctx: EncryptFSContext) {

@@ -1,8 +1,8 @@
 import { ExtensionContext, workspace } from 'vscode';
-import { registerCommands } from './commonds';
+import { registerCommands } from './commands';
 import { ConfigurationContext } from './configuration';
 import { globalCtx } from './context';
-import { EncryptFS } from './EncryptFsProvider';
+import { EncryptFSProvider } from './EncryptFsProvider';
 import { getEncryptWorkspace } from './utils';
 
 export function activate(context: ExtensionContext) {
@@ -16,14 +16,16 @@ export function activate(context: ExtensionContext) {
 
   globalCtx.configuration = new ConfigurationContext();
 
-  const encryptFs = new EncryptFS({
+  const encryptFs = new EncryptFSProvider({
     configuration: globalCtx.configuration,
   });
 
   context.subscriptions.push(encryptFs);
 
   context.subscriptions.push(
-    workspace.registerFileSystemProvider(EncryptFS.scheme, encryptFs, { isCaseSensitive: true }),
+    workspace.registerFileSystemProvider(EncryptFSProvider.scheme, encryptFs, {
+      isCaseSensitive: true,
+    }),
   );
 }
 
