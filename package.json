@@ -26,8 +26,7 @@
     "auto-decrypt"
   ],
   "activationEvents": [
-    "onFileSystem:encrypt",
-    "onStartupFinished"
+    "*"
   ],
   "main": "./dist/extension.js",
   "contributes": {
