@@ -4,6 +4,20 @@
 
 A extension that focus on privacy, use `vscode` [virtual workspace][virtual-workspace] to auto encrypt and decrypt current workspace files.
 
+## Usage
+
+Open a folder, then use `Encrypt: Setup Workspace` command to transform current workspace into encrypt workspace.
+
+Then use `Encrypt: Set or change password` to set a password.
+
+## Change password
+
+Use `Encrypt: Set or change password` to set or change the password.
+
+## Clear encryption
+
+Use `Encrypt: Decrypt all files` to clear password and decrypt all files.
+
 ## Configuration
 
 Configuration file location: `./encrypt.json`.
