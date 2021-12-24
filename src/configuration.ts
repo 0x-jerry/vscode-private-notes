@@ -2,6 +2,7 @@ import { Uri, workspace } from 'vscode';
 import { globalCtx } from './context';
 import { Dispose } from './Disposable';
 import { promptPassword } from './promptPassword';
+import { UserConfiguration } from './types';
 import { getEncryptWorkspace } from './utils';
 
 export interface Configuration {
@@ -9,13 +10,6 @@ export interface Configuration {
    * Regexp pattern
    */
   exclude: RegExp[];
-}
-
-export interface UserConfiguration {
-  /**
-   * Regexp pattern
-   */
-  exclude: string[];
 }
 
 function defaultConf(): Configuration {
