@@ -19,6 +19,12 @@
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "encrypt",
+    "decrypt",
+    "auto-encrypt",
+    "auto-decrypt"
+  ],
   "activationEvents": [
     "onFileSystem:encrypt",
     "onStartupFinished"
