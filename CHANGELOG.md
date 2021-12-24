@@ -1,3 +1,17 @@
+## [0.2.4](https://github.com/cwxyz007/vscode-writing/compare/v0.2.3...v0.2.4) (2021-12-24)
+
+
+### Bug Fixes
+
+* exclude files ([f4e4251](https://github.com/cwxyz007/vscode-writing/commit/f4e42517e20b2fd27e4a5322b5347748625021b9))
+
+
+### Features
+
+* add encrypt/decrypt status bar ([3e10f6e](https://github.com/cwxyz007/vscode-writing/commit/3e10f6ede0042900c5e8919d9cc5dbe3acc29ae3))
+
+
+
 ## [0.2.3](https://github.com/cwxyz007/vscode-writing/compare/v0.2.2...v0.2.3) (2021-12-24)
 
 
