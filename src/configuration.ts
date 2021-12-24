@@ -11,8 +11,9 @@ export type Configuration = UserConfiguration;
 function defaultConf(): Configuration {
   return {
     exclude: [
-      // do not encrypt any dot file
+      // do not encrypt any dot file or `.vscode` config folder
       '**/.*',
+      '/.vscode/**',
     ],
   };
 }
