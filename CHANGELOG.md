@@ -1,3 +1,12 @@
+## [0.2.5](https://github.com/cwxyz007/vscode-writing/compare/v0.2.4...v0.2.5) (2021-12-24)
+
+
+### Features
+
+* add json schema validation ([5c8a92d](https://github.com/cwxyz007/vscode-writing/commit/5c8a92df1651d1f341a1ff2dc3363047eb632ae8))
+
+
+
 ## [0.2.4](https://github.com/cwxyz007/vscode-writing/compare/v0.2.3...v0.2.4) (2021-12-24)
 
 
