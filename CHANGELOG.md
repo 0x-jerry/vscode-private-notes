@@ -1,3 +1,13 @@
+## [0.2.3](https://github.com/cwxyz007/vscode-writing/compare/v0.2.2...v0.2.3) (2021-12-24)
+
+
+### Bug Fixes
+
+* encrypt all files ([fd4b7b7](https://github.com/cwxyz007/vscode-writing/commit/fd4b7b75fde3a286443644cb6b1319bf07aff4d4))
+* recrypt all files ([7aa1dad](https://github.com/cwxyz007/vscode-writing/commit/7aa1dad3976bd3207266adb69fb482d22dda73ba))
+
+
+
 ## [0.2.2](https://github.com/cwxyz007/vscode-writing/compare/v0.2.1...v0.2.2) (2021-12-24)
 
 
