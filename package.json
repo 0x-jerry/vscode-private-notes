@@ -1,7 +1,7 @@
 {
   "name": "vscode-writing",
   "displayName": "vscode-writing",
-  "description": "vscode writing tool",
+  "description": "Auto encrypt and decrypt file in a virtual workspace.",
   "license": "MIT",
   "version": "0.2.4",
   "publisher": "fantasy",
