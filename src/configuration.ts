@@ -70,6 +70,9 @@ export class ConfigurationContext extends Dispose {
   }
 
   private watchConfFile() {
+    /**
+     * todo: when config changed, excluded files should be decrypt.
+     */
     const watcher = workspace.createFileSystemWatcher('**/' + confFileName);
 
     watcher.onDidChange(() => {
