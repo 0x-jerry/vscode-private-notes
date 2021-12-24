@@ -1,3 +1,12 @@
+## [0.2.6](https://github.com/cwxyz007/vscode-writing/compare/v0.2.5...v0.2.6) (2021-12-24)
+
+
+### Performance Improvements
+
+* use glob pattern to match exclude files ([5281c90](https://github.com/cwxyz007/vscode-writing/commit/5281c9041a799a0111488f69358c99b910a7c172))
+
+
+
 ## [0.2.5](https://github.com/cwxyz007/vscode-writing/compare/v0.2.4...v0.2.5) (2021-12-24)
 
 
