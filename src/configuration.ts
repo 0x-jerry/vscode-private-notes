@@ -4,19 +4,15 @@ import { Dispose } from './Disposable';
 import { promptPassword } from './promptPassword';
 import { UserConfiguration } from './types';
 import { getEncryptWorkspace } from './utils';
+import minimatch from 'minimatch';
 
-export interface Configuration {
-  /**
-   * Regexp pattern
-   */
-  exclude: RegExp[];
-}
+export type Configuration = UserConfiguration;
 
 function defaultConf(): Configuration {
   return {
     exclude: [
-      // do not encrypt dot file
-      /^\/\./,
+      // do not encrypt any dot file
+      '**/.*',
     ],
   };
 }
@@ -47,7 +43,7 @@ export class ConfigurationContext extends Dispose {
       for (const exclude of parsedConf.exclude || []) {
         // Ignore empty rule.
         if (exclude) {
-          conf.exclude.push(new RegExp(exclude));
+          conf.exclude.push(exclude);
         }
       }
 
@@ -106,7 +102,9 @@ export class ConfigurationContext extends Dispose {
 
     const baseUrl = root.uri.path || '';
 
-    const match = !!this.conf.exclude.find((n) => n.test(file.path.slice(baseUrl.length)));
+    const match = !!this.conf.exclude.find((pattern) =>
+      minimatch(file.path.slice(baseUrl.length), pattern),
+    );
 
     return match;
   }

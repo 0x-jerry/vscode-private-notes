@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
         "exclude": {
-            "description": "Do not encrypt those files. Support regexp pattern.\n\nexample: exclude `.jpg` files.\n\n\"exclude\": [\"\\\\.jpg$\"]",
+            "description": "Do not encrypt those files. Support glob pattern.\n\nexample: exclude `.jpg` files.\n\n\"exclude\": [\"**\\/*.jpg\"]",
             "items": {
                 "type": "string"
             },
