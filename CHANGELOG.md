@@ -1,3 +1,31 @@
+# [0.2.0](https://github.com/cwxyz007/vscode-writing/compare/v0.1.0...v0.2.0) (2021-12-24)
+
+
+### Bug Fixes
+
+* rename ([5caa933](https://github.com/cwxyz007/vscode-writing/commit/5caa93302410da4919358fd76cf5f0fcb82a2df4))
+
+
+### Features
+
+* add sign for encrypt file ([23c71bb](https://github.com/cwxyz007/vscode-writing/commit/23c71bb63dffaa1e49cf3e69b0bc7fcf940c0d4a))
+* allow to use multi workspace mode ([42234a3](https://github.com/cwxyz007/vscode-writing/commit/42234a330b840439bbb9cc4788f3bee286a94add))
+* auto encrypt & decrypt file use aes-256-gcm ([5c5524b](https://github.com/cwxyz007/vscode-writing/commit/5c5524b04d3a0d172c981cbb594db079bb5238e5))
+* configuration file ([6049bf7](https://github.com/cwxyz007/vscode-writing/commit/6049bf7870fb4915713e060b9a21b5f5dec14de6))
+* encrypt & decrypt all files. ([42d8a77](https://github.com/cwxyz007/vscode-writing/commit/42d8a776bde1b3b25f3fd04095743dcc1cb1529e))
+* reload config when config file changed ([82d12a4](https://github.com/cwxyz007/vscode-writing/commit/82d12a4c7d520c48eacdecb85892df58005deab6))
+* validate password ([6dc3586](https://github.com/cwxyz007/vscode-writing/commit/6dc3586c2234601c047720f4df4b9939973c2edc))
+
+
+### Performance Improvements
+
+* add workspace suffix ([d136425](https://github.com/cwxyz007/vscode-writing/commit/d136425066b6e8bcc84c7b9c91bbc8aed4785d0e))
+* exclude .vscode setting folder ([ea52aa1](https://github.com/cwxyz007/vscode-writing/commit/ea52aa1fb9e906bcf5ec304ee17b96a36cdafe36))
+* no need to implement copy funciton ([91eb836](https://github.com/cwxyz007/vscode-writing/commit/91eb8361cd4bb67dc0e4162ad1215a2016d23f1a))
+* use relative path to check exclude ([09f2f4d](https://github.com/cwxyz007/vscode-writing/commit/09f2f4d86d22f0276c36e94e1d653f6e2a9bce26))
+
+
+
 # [0.1.0](https://github.com/cwxyz007/vscode-writing/compare/v0.0.1...v0.1.0) (2021-12-20)
 
 
