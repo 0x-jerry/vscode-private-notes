@@ -1,3 +1,12 @@
+## [0.2.7](https://github.com/cwxyz007/vscode-writing/compare/v0.2.6...v0.2.7) (2021-12-24)
+
+
+### Performance Improvements
+
+* exclude .vscode folder ([35550d6](https://github.com/cwxyz007/vscode-writing/commit/35550d696ef1fc188e729732dc38e95559044dcb))
+
+
+
 ## [0.2.6](https://github.com/cwxyz007/vscode-writing/compare/v0.2.5...v0.2.6) (2021-12-24)
 
 
