@@ -12,11 +12,11 @@
   ],
   "repository": {
     "letter": {
-      "match": "@[^\\s]+",
+      "match": "(?<=\\s|^)@[^\\s]+(?=\\s|$)",
       "name": "keyword.story.tag"
     },
     "support": {
-      "match": "#[^\\s]+",
+      "match": "(?<=\\s|^)#[^\\s]+(?=\\s|$)",
       "name": "support.class.story.anchor"
     }
   }
