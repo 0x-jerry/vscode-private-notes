@@ -17,18 +17,20 @@ export class Status extends Dispose {
   }
 
   watch() {
-    window.onDidChangeActiveTextEditor((e) => {
-      if (!e) return;
+    this.addDisposable(
+      window.onDidChangeActiveTextEditor((e) => {
+        if (!e) return;
 
-      const excluded = globalCtx.configuration.isExclude(e.document.uri);
+        const excluded = globalCtx.configuration.isExclude(e.document.uri);
 
-      if (excluded) {
-        this.bar.text = '$(unlock)';
-        this.bar.tooltip = 'This file is not encrypt.';
-      } else {
-        this.bar.text = '$(lock)';
-        this.bar.tooltip = 'This file is encrypt.';
-      }
-    });
+        if (excluded) {
+          this.bar.text = '$(unlock)';
+          this.bar.tooltip = 'This file is not encrypt.';
+        } else {
+          this.bar.text = '$(lock)';
+          this.bar.tooltip = 'This file is encrypt.';
+        }
+      }),
+    );
   }
 }

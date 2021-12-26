@@ -85,17 +85,12 @@ export async function getSavedContent(uri: Uri, content: Uint8Array): Promise<Ui
   return encrypt(content, await globalCtx.configuration.getMasterKey());
 }
 
-export async function getReadContent(uri: Uri, content: Uint8Array): Promise<Uint8Array> {
+export async function getReadContent(content: Uint8Array): Promise<Uint8Array> {
   if (!hasPassword()) {
     return content;
   }
 
   if (!isEncryptedFile(content)) {
-    return content;
-  }
-
-  const isExclude = globalCtx.configuration.isExclude(uri);
-  if (isExclude) {
     return content;
   }
 

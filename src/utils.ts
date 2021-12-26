@@ -28,7 +28,7 @@ export async function travesDir(
   for (const [filePath, fileType] of files) {
     const uri = Uri.joinPath(rootDir, filePath);
 
-    const excluded = isExclude?.(uri);
+    const excluded = await isExclude?.(uri);
 
     if (!excluded) {
       tasks.push(cb(uri, fileType));
@@ -43,23 +43,13 @@ export async function travesDir(
 }
 
 export function getTargetUri(uri: Uri) {
-  let scheme = '';
-  let query = '';
-
-  for (const item of workspace.workspaceFolders || []) {
-    if (item.uri.scheme === EncryptFSProvider.scheme) {
-      const qs = parseQuery(item.uri.query);
-      scheme = qs.get('scheme') || '';
-      qs.delete('scheme');
-      query = qs.toString();
-    }
+  if (uri.scheme !== EncryptFSProvider.scheme) {
+    throw new Error('Please use ' + EncryptFSProvider.scheme);
   }
 
-  const newUri = Uri.from({
-    ...uri,
-    scheme,
-    query,
-  });
+  const origin = Uri.parse(uri.fragment);
+
+  const newUri = Uri.joinPath(origin, '..', uri.path);
 
   return newUri;
 }

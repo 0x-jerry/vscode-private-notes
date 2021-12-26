@@ -16,21 +16,18 @@ export function activate(context: ExtensionContext) {
   }
 
   globalCtx.configuration = new ConfigurationContext();
+  context.subscriptions.push(globalCtx.configuration);
 
-  const encryptFs = new EncryptFSProvider({
-    configuration: globalCtx.configuration,
-  });
-
-  context.subscriptions.push(encryptFs);
-
-  const status = new Status();
-  context.subscriptions.push(status);
+  const encryptFs = new EncryptFSProvider();
 
   context.subscriptions.push(
     workspace.registerFileSystemProvider(EncryptFSProvider.scheme, encryptFs, {
       isCaseSensitive: true,
     }),
   );
+
+  const status = new Status();
+  context.subscriptions.push(status);
 }
 
 export function deactivate() {

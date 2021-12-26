@@ -1,10 +1,10 @@
+import path from 'path';
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { globalCtx } from './context';
 import { decryptAllFiles, reEncryptAllFiles } from './crypto';
 import { EncryptFSProvider } from './EncryptFsProvider';
 import { promptPassword, promptNewPassword } from './promptPassword';
 import { getSetting, setPassword, Setting } from './settings';
-import { parseQuery } from './utils';
 
 enum Commands {
   InitWorkspace = 'encrypt.initWorkspace',
@@ -66,16 +66,16 @@ async function decryptAllFilesCommand() {
 }
 
 async function initWorkspaceCommand() {
-  const current = workspace.workspaceFolders?.[0];
+  const current = workspace.workspaceFolders?.[0]?.uri;
   if (!current) return;
+  if (current.scheme === EncryptFSProvider.scheme) return;
 
-  const query = parseQuery(current.uri.query);
-  query.set('scheme', current.uri.scheme);
+  const name = path.basename(current.path);
 
   const uri = Uri.from({
-    ...current.uri,
     scheme: EncryptFSProvider.scheme,
-    query: query.toString(),
+    fragment: current.toString(),
+    path: '/' + name,
   });
 
   commands.executeCommand('vscode.openFolder', uri);

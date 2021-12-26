@@ -14,21 +14,10 @@ import {
   workspace,
 } from 'vscode';
 import { getTargetUri } from './utils';
-import { ConfigurationContext } from './configuration';
-import { Dispose } from './Disposable';
 import { getReadContent, getSavedContent } from './crypto';
 
-interface EncryptFSContext {
-  configuration: ConfigurationContext;
-}
-
-export class EncryptFSProvider extends Dispose implements FileSystemProvider {
+export class EncryptFSProvider implements FileSystemProvider {
   static scheme = 'encrypt';
-
-  constructor(private ctx: EncryptFSContext) {
-    super();
-    this.addDisposable(ctx.configuration);
-  }
 
   // --- manage file metadata
 
@@ -54,7 +43,7 @@ export class EncryptFSProvider extends Dispose implements FileSystemProvider {
     const result = await workspace.fs.readFile(newUri);
 
     try {
-      return await getReadContent(uri, result);
+      return getReadContent(result);
     } catch (error) {
       window.showErrorMessage(`Decrypt file [${uri.toString()}] failed: ${String(error)}`);
       return result;
@@ -80,10 +69,9 @@ export class EncryptFSProvider extends Dispose implements FileSystemProvider {
       throw FileSystemError.FileExists(uri);
     }
 
-    const newUri = getTargetUri(uri);
-
     const encryptContent = await getSavedContent(uri, content);
 
+    const newUri = getTargetUri(uri);
     await workspace.fs.writeFile(newUri, encryptContent);
 
     if (!entry) {
@@ -117,7 +105,7 @@ export class EncryptFSProvider extends Dispose implements FileSystemProvider {
 
     this._fireSoon(
       { type: FileChangeType.Changed, uri: dirname },
-      { uri, type: FileChangeType.Deleted },
+      { type: FileChangeType.Deleted, uri },
     );
   }
 
@@ -144,7 +132,7 @@ export class EncryptFSProvider extends Dispose implements FileSystemProvider {
     try {
       return await workspace.fs.stat(newUri);
     } catch (error) {
-      //
+      console.error(error, newUri);
     }
   }
 
