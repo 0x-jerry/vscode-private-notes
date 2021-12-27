@@ -1,4 +1,4 @@
-import { fstat, FSWatcher, watch, WatchListener } from 'fs';
+import { FSWatcher, watch } from 'fs';
 import debounce from 'lodash/debounce';
 import path from 'path';
 
@@ -14,13 +14,18 @@ import {
 import { Dispose } from './Disposable';
 import { getEncryptWorkspace, run } from './utils';
 
-type Status = 'A' | 'M' | 'D' | 'AM' | '??';
+type Status = 'A' | 'M' | 'D' | 'U';
 
 const gitStatus = createCacheRunner(async (cwd: string) => {
   const std = await run('git status -s', { cwd });
-  const files = std.toString().trim().split(/\n/g);
+  const files = std.toString().split(/\n/g).filter(Boolean);
 
-  return files.map((n) => n.trim().split(/\s+/)) as [Status, string][];
+  return files.map((n) => {
+    let status = n[1] === ' ' ? n[0] : n[1];
+    status = status === '?' ? 'U' : status;
+
+    return [status, n.slice(3)] as [Status, string];
+  });
 });
 
 function createCacheRunner<Fn extends (...args: any[]) => any>(fn: Fn, cacheTime = 100) {
@@ -42,18 +47,13 @@ function createCacheRunner<Fn extends (...args: any[]) => any>(fn: Fn, cacheTime
 
 const decorations: Record<Status, FileDecoration> = {
   A: new FileDecoration('A', 'Added', new ThemeColor('gitDecoration.addedResourceForeground')),
-  AM: new FileDecoration(
-    'M',
-    'Modified',
-    new ThemeColor('gitDecoration.modifiedResourceForeground'),
-  ),
   M: new FileDecoration(
     'M',
     'Modified',
     new ThemeColor('gitDecoration.modifiedResourceForeground'),
   ),
   D: new FileDecoration('D', 'Deleted', new ThemeColor('gitDecoration.deletedResourceForeground')),
-  '??': new FileDecoration(
+  U: new FileDecoration(
     'U',
     'Untracked',
     new ThemeColor('gitDecoration.untrackedResourceForeground'),
