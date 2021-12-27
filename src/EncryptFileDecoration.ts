@@ -1,6 +1,6 @@
-import { execSync } from 'child_process';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import path from 'path';
+
 import {
   CancellationToken,
   EventEmitter,
@@ -12,12 +12,13 @@ import {
 } from 'vscode';
 import { Dispose } from './Disposable';
 import { EncryptFSProvider } from './EncryptFsProvider';
+import { getEncryptWorkspace, run } from './utils';
 
 type Status = 'A' | 'M' | 'D' | 'AM' | '??';
 
 const cacheRunner = createCacheRunner(async (cwd: string) => {
-  const std = execSync('git status -s', { cwd, stdio: 'pipe' });
-  const files = std.toString().split(/\n/g);
+  const std = await run('git status -s', { cwd });
+  const files = std.toString().trim().split(/\n/g);
 
   return files.map((n) => n.trim().split(/\s+/)) as [Status, string][];
 });
@@ -43,7 +44,7 @@ async function getFileStatus(uri: Uri) {
   }
 }
 
-function createCacheRunner<Fn extends (...args: any[]) => any>(fn: Fn, cacheTime = 1000) {
+function createCacheRunner<Fn extends (...args: any[]) => any>(fn: Fn, cacheTime = 100) {
   const resolvers: Array<(val: unknown) => void> = [];
 
   const runner = debounce(async (...args: Parameters<Fn>) => {
@@ -85,8 +86,31 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
 
   onDidChangeFileDecorations = this._emitter.event;
 
+  #isGitRepo = false;
+
   constructor() {
     super();
+    this.#init();
+  }
+
+  async #init() {
+    const root = getEncryptWorkspace();
+    if (!root) return;
+
+    const origin = Uri.parse(root.uri.fragment);
+    if (origin.scheme !== 'file') {
+      return;
+    }
+
+    const cwd = origin.path;
+
+    try {
+      await run('git status', { cwd });
+    } catch (error) {
+      return;
+    }
+
+    this.#isGitRepo = true;
     this.addDisposable(
       workspace.onDidSaveTextDocument((e) => {
         // const status = await this.getStatus(e.uri)
@@ -108,6 +132,8 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
     if (uri.scheme !== EncryptFSProvider.scheme) {
       return;
     }
+
+    if (!this.#isGitRepo) return;
 
     const status = await getFileStatus(uri);
 

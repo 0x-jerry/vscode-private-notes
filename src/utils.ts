@@ -1,3 +1,4 @@
+import { exec, ExecOptions } from 'child_process';
 import { URL } from 'url';
 import { FileType, Uri, workspace } from 'vscode';
 import { EncryptFSProvider } from './EncryptFsProvider';
@@ -52,4 +53,25 @@ export function getTargetUri(uri: Uri) {
   const newUri = Uri.joinPath(origin, '..', uri.path);
 
   return newUri;
+}
+
+export async function run(cmd: string, opt?: ExecOptions) {
+  return new Promise<Buffer>((resolve, reject) => {
+    exec(
+      cmd,
+      {
+        ...opt,
+        encoding: 'buffer',
+      },
+      (err, stdout, stderr) => {
+        const error = err || stderr.toString().trim();
+
+        if (error) {
+          reject(error);
+        } else {
+          resolve(stdout);
+        }
+      },
+    );
+  });
 }
