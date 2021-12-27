@@ -1,17 +1,22 @@
-import { ExtensionContext, workspace } from 'vscode';
-import { registerCommands } from './commands';
-import { ConfigurationContext } from './configuration';
+import { commands, ExtensionContext, window, workspace } from 'vscode';
+import { Commands, registerCommands } from './commands';
+import { ConfigurationContext, configurationExist } from './configuration';
 import { globalCtx } from './context';
+import { EncryptFileDecorationProvider } from './EncryptFileDecoration';
 import { EncryptFSProvider } from './EncryptFsProvider';
+import { EncryptTerminalProvider } from './EncryptTerminalProvider';
 import { Status } from './statusbar';
 import { getEncryptWorkspace } from './utils';
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   registerCommands(context);
 
   const encryptWs = getEncryptWorkspace();
 
   if (!encryptWs) {
+    if (await configurationExist()) {
+      commands.executeCommand(Commands.InitWorkspace);
+    }
     return;
   }
 
@@ -28,6 +33,17 @@ export function activate(context: ExtensionContext) {
 
   const status = new Status();
   context.subscriptions.push(status);
+
+  const encryptFileDecorationProvider = new EncryptFileDecorationProvider();
+  context.subscriptions.push(encryptFileDecorationProvider);
+  context.subscriptions.push(window.registerFileDecorationProvider(encryptFileDecorationProvider));
+
+  context.subscriptions.push(
+    window.registerTerminalProfileProvider(
+      'terminal.encrypt-profile',
+      new EncryptTerminalProvider(),
+    ),
+  );
 }
 
 export function deactivate() {
