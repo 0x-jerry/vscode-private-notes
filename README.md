@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-打开一个文件夹，使用命令 `Encrypt: Setup Workspace`，把当前工作去转换成加密工作区。
+打开一个文件夹，使用命令 `Encrypt: Setup Workspace`，把当前工作区转换成加密工作区。
 
 然后，使用命令 `Encrypt: Set or change password` 设置密码。
 

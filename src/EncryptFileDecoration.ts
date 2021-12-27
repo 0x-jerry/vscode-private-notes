@@ -8,7 +8,6 @@ import {
   FileDecorationProvider,
   ThemeColor,
   Uri,
-  window,
   workspace,
 } from 'vscode';
 import { Dispose } from './Disposable';
