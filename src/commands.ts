@@ -11,6 +11,7 @@ export enum Commands {
   SetPassword = 'encrypt.changePassword',
   EncryptAllFiles = 'encrypt.encryptAllFiles',
   DecryptAllFiles = 'encrypt.decryptAllFiles',
+  Lock = 'encrypt.lock',
 }
 
 async function setPasswordCommand() {
@@ -81,7 +82,13 @@ async function initWorkspaceCommand() {
   commands.executeCommand('vscode.openFolder', uri);
 }
 
+async function lockCommand() {
+  await commands.executeCommand('workbench.action.closeAllEditors');
+  globalCtx.configuration.setMasterKey();
+}
+
 export function registerCommands(ctx: ExtensionContext) {
+  ctx.subscriptions.push(commands.registerCommand(Commands.Lock, lockCommand));
   ctx.subscriptions.push(commands.registerCommand(Commands.InitWorkspace, initWorkspaceCommand));
   ctx.subscriptions.push(commands.registerCommand(Commands.SetPassword, setPasswordCommand));
   ctx.subscriptions.push(

@@ -68,6 +68,11 @@
         "category": "Encrypt"
       },
       {
+        "command": "encrypt.lock",
+        "title": "Lock Workspace",
+        "category": "Encrypt"
+      },
+      {
         "command": "encrypt.changePassword",
         "title": "Set or change password",
         "category": "Encrypt"
@@ -91,6 +96,13 @@
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "encrypt.lock",
+        "key": "ctrl+l",
+        "mac": "cmd+l"
+      }
+    ],
     "resourceLabelFormatters": [
       {
         "scheme": "encrypt",
