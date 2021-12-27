@@ -29,9 +29,8 @@ const gitStatus = createCacheRunner(async (cwd: string) => {
     // covert `"xx/xx xx.md"` to `xx/xx xx.md`
     filePath = filePath.startsWith('"') ? filePath.slice(1, -1) : filePath;
 
-    // replace octal character
-    // https://stackoverflow.com/questions/30236912/javascript-convert-unicode-octal-bytes-to-text
-    filePath = filePath.replace(/(\\\d{3}){3}/g, (str) => {
+    // covert octal bytes to string
+    filePath = filePath.replace(/(\\\d{3})+/g, (str) => {
       const arr = str.match(/\\\d{3}/g)?.map((octal) => parseInt(octal.slice(1), 8)) || [];
 
       return globalCtx.dec.decode(Buffer.from(arr));
