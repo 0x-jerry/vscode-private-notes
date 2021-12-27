@@ -1,3 +1,27 @@
+# [0.3.0](https://github.com/cwxyz007/vscode-writing/compare/v0.2.8...v0.3.0) (2021-12-27)
+
+
+### Bug Fixes
+
+* update git status when create new file ([f9b02bb](https://github.com/cwxyz007/vscode-writing/commit/f9b02bb8154e464f987746edfd79297a4e3e0935))
+
+
+### Features
+
+* auto load workspace when found config file ([e579521](https://github.com/cwxyz007/vscode-writing/commit/e579521c028e845ff787f61574a78e4e2352f200))
+* file decoratioin and terminal profile ([68b3bca](https://github.com/cwxyz007/vscode-writing/commit/68b3bca0e322ae58246a419fb99ad89e03f94184))
+* quic close all editor and clear password ([fed5176](https://github.com/cwxyz007/vscode-writing/commit/fed5176c4ec6e74361fd1fd8f8c5d1ef527b9bb3))
+
+
+### Performance Improvements
+
+* additional markdown syntax ([4f626ef](https://github.com/cwxyz007/vscode-writing/commit/4f626ef6d210ce1e4202888bef48548bb7be6719))
+* auto update file decoration ([916fdc1](https://github.com/cwxyz007/vscode-writing/commit/916fdc1e23f00f2f6f7ad08f9cd1e4d570caf244))
+* file decoration ([12a068e](https://github.com/cwxyz007/vscode-writing/commit/12a068e539db151e2cb476dcc1a487e216b5d315))
+* merge git status ([8c2c611](https://github.com/cwxyz007/vscode-writing/commit/8c2c611619ef6d1171b062aeb2d146ccf42cbb57))
+
+
+
 ## [0.2.8](https://github.com/cwxyz007/vscode-writing/compare/v0.2.7...v0.2.8) (2021-12-24)
 
 
