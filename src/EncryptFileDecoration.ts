@@ -1,3 +1,4 @@
+import { fstat, FSWatcher, watch, WatchListener } from 'fs';
 import debounce from 'lodash/debounce';
 import path from 'path';
 
@@ -11,38 +12,16 @@ import {
   workspace,
 } from 'vscode';
 import { Dispose } from './Disposable';
-import { EncryptFSProvider } from './EncryptFsProvider';
 import { getEncryptWorkspace, run } from './utils';
 
 type Status = 'A' | 'M' | 'D' | 'AM' | '??';
 
-const cacheRunner = createCacheRunner(async (cwd: string) => {
+const gitStatus = createCacheRunner(async (cwd: string) => {
   const std = await run('git status -s', { cwd });
   const files = std.toString().trim().split(/\n/g);
 
   return files.map((n) => n.trim().split(/\s+/)) as [Status, string][];
 });
-
-async function getFileStatus(uri: Uri) {
-  const origin = Uri.parse(uri.fragment);
-  if (origin.scheme !== 'file') {
-    return;
-  }
-
-  const cwd = origin.path;
-
-  const root = '/' + path.basename(cwd) + '/';
-
-  try {
-    const files = await cacheRunner(cwd);
-    const filePath = uri.path.slice(root.length);
-
-    const hit = files.find((f) => f[1] === filePath);
-    return hit?.[0];
-  } catch (error) {
-    console.log('error', error);
-  }
-}
 
 function createCacheRunner<Fn extends (...args: any[]) => any>(fn: Fn, cacheTime = 100) {
   const resolvers: Array<(val: unknown) => void> = [];
@@ -88,6 +67,10 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
 
   #isGitRepo = false;
 
+  #watcher?: FSWatcher;
+
+  fileStatus = new Map<string, FileDecoration>();
+
   constructor() {
     super();
     this.#init();
@@ -111,14 +94,43 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
     }
 
     this.#isGitRepo = true;
+
+    const workspaceWatcher = workspace.createFileSystemWatcher('**');
+    this.addDisposable(workspaceWatcher);
+
     this.addDisposable(
-      workspace.onDidSaveTextDocument((e) => {
-        // const status = await this.getStatus(e.uri)
-        // if (status) {
-        // }
-        this._emitter.fire(e.uri);
+      workspaceWatcher.onDidChange(() => {
+        this.updateGitStatus();
       }),
     );
+
+    this.addDisposable(
+      workspaceWatcher.onDidChange(() => {
+        this.updateGitStatus();
+      }),
+    );
+
+    this.addDisposable(
+      workspaceWatcher.onDidDelete(() => {
+        this.updateGitStatus();
+      }),
+    );
+
+    this.#watcher = watch(path.join(origin.path, '.git'));
+
+    this.#watcher.addListener('change', (type, filename) => {
+      if (filename.toString().endsWith('index.lock')) return;
+
+      this.updateGitStatus();
+    });
+
+    this.addDisposable({
+      dispose: () => {
+        this.#watcher?.close();
+      },
+    });
+
+    this.updateGitStatus();
   }
 
   async provideFileDecoration(
@@ -129,16 +141,34 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
   }
 
   async getStatus(uri: Uri) {
-    if (uri.scheme !== EncryptFSProvider.scheme) {
+    return this.fileStatus.get(uri.path);
+  }
+
+  updateGitStatus = debounce(async () => {
+    const root = getEncryptWorkspace();
+    if (!root) return;
+
+    const origin = Uri.parse(root.uri.fragment);
+    if (origin.scheme !== 'file') {
       return;
     }
 
     if (!this.#isGitRepo) return;
 
-    const status = await getFileStatus(uri);
+    const cwd = origin.path;
+    const status = await gitStatus(cwd);
+    const newFileStatus = new Map<string, FileDecoration>();
 
-    if (!status) return;
+    for (const [type, filePath] of status) {
+      newFileStatus.set(path.join(root.uri.path, filePath), decorations[type]);
+    }
 
-    return decorations[status];
-  }
+    const uris = [...this.fileStatus.keys(), ...newFileStatus.keys()].map((s) =>
+      root.uri.with({ path: s }),
+    );
+
+    this.fileStatus = newFileStatus;
+
+    this._emitter.fire(uris);
+  }, 100);
 }
