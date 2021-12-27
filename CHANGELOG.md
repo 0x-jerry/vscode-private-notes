@@ -1,3 +1,13 @@
+## [0.3.1](https://github.com/cwxyz007/vscode-writing/compare/v0.3.0...v0.3.1) (2021-12-27)
+
+
+### Bug Fixes
+
+* covert octal bytes to string ([1201bf3](https://github.com/cwxyz007/vscode-writing/commit/1201bf3de9fe8c098833a937bab8e8afe964c89e))
+* file decoration not working when filename contain unicode ([9085ce3](https://github.com/cwxyz007/vscode-writing/commit/9085ce316ba10354b1c59a840e953ecbfd367aa1))
+
+
+
 # [0.3.0](https://github.com/cwxyz007/vscode-writing/compare/v0.2.8...v0.3.0) (2021-12-27)
 
 
