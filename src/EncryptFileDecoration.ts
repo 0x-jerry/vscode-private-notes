@@ -105,7 +105,7 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
     );
 
     this.addDisposable(
-      workspaceWatcher.onDidChange(() => {
+      workspaceWatcher.onDidCreate(() => {
         this.updateGitStatus();
       }),
     );
