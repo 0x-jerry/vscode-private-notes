@@ -11,6 +11,7 @@ import {
   Uri,
   workspace,
 } from 'vscode';
+import { globalCtx } from './context';
 import { Dispose } from './Disposable';
 import { getEncryptWorkspace, run } from './utils';
 
@@ -24,7 +25,19 @@ const gitStatus = createCacheRunner(async (cwd: string) => {
     let status = n[1] === ' ' ? n[0] : n[1];
     status = status === '?' ? 'U' : status;
 
-    return [status, n.slice(3)] as [Status, string];
+    let filePath = n.slice(3);
+    // covert `"xx/xx xx.md"` to `xx/xx xx.md`
+    filePath = filePath.startsWith('"') ? filePath.slice(1, -1) : filePath;
+
+    // replace octal character
+    // https://stackoverflow.com/questions/30236912/javascript-convert-unicode-octal-bytes-to-text
+    filePath = filePath.replace(/(\\\d{3}){3}/g, (str) => {
+      const arr = str.match(/\\\d{3}/g)?.map((octal) => parseInt(octal.slice(1), 8)) || [];
+
+      return globalCtx.dec.decode(Buffer.from(arr));
+    });
+
+    return [status, filePath] as [Status, string];
   });
 });
 
@@ -160,10 +173,17 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
     const newFileStatus = new Map<string, FileDecoration>();
 
     for (const [type, filePath] of status) {
-      newFileStatus.set(path.join(root.uri.path, filePath), decorations[type]);
+      let folder = filePath;
+      while (((folder = path.dirname(folder)), folder !== '.')) {
+        const folderUri = path.join(root.uri.path, folder);
+        newFileStatus.set(folderUri, decorations[type]);
+      }
+
+      const fileUri = path.join(root.uri.path, filePath);
+      newFileStatus.set(fileUri, decorations[type]);
     }
 
-    const uris = [...this.fileStatus.keys(), ...newFileStatus.keys()].map((s) =>
+    const uris = [...new Set([...this.fileStatus.keys(), ...newFileStatus.keys()])].map((s) =>
       root.uri.with({ path: s }),
     );
 
