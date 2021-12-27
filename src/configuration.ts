@@ -20,6 +20,23 @@ function defaultConf(): Configuration {
 
 const confFileName = '.encrypt.json';
 
+export async function configurationExist() {
+  const root = workspace.workspaceFolders?.[0];
+  if (!root) {
+    return false;
+  }
+
+  try {
+    const confUri = Uri.joinPath(root.uri, confFileName);
+
+    await workspace.fs.stat(confUri);
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export class ConfigurationContext extends Dispose {
   conf: Configuration = defaultConf();
 

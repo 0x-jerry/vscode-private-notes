@@ -6,7 +6,7 @@ import { EncryptFSProvider } from './EncryptFsProvider';
 import { promptPassword, promptNewPassword } from './promptPassword';
 import { getSetting, setPassword, Setting } from './settings';
 
-enum Commands {
+export enum Commands {
   InitWorkspace = 'encrypt.initWorkspace',
   SetPassword = 'encrypt.changePassword',
   EncryptAllFiles = 'encrypt.encryptAllFiles',
