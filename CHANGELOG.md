@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/cwxyz007/vscode-writing/compare/v0.4.0...v0.4.1) (2021-12-28)
+
+
+### Bug Fixes
+
+* get git status ([36ff7af](https://github.com/cwxyz007/vscode-writing/commit/36ff7afafa36b4f0ceb75257354f9c9b1f3b7e86))
+
+
+
 # [0.4.0](https://github.com/cwxyz007/vscode-writing/compare/v0.3.1...v0.4.0) (2021-12-28)
 
 
