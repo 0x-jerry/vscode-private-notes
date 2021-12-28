@@ -123,13 +123,11 @@ export class ConfigurationContext extends Dispose {
     if (!root) return true;
 
     const baseUrl = root.uri.path || '';
-    const list = [file.path.slice(baseUrl.length)];
+    const filePath = file.path.slice(baseUrl.length);
 
     const rules = [...this.conf.include, ...this.conf.exclude.map((n) => '!' + n)];
 
-    const match = micromatch(list, rules);
-
-    const isInclude = !!match.length;
+    const isInclude = micromatch.isMatch(filePath, rules);
 
     return !isInclude;
   }
