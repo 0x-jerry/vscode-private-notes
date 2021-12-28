@@ -4,14 +4,14 @@ specifiers:
   '@0x-jerry/eslint-config': ^0.2.0
   '@types/jest': ^27.0.3
   '@types/lodash': ^4.14.178
-  '@types/minimatch': ^3.0.5
+  '@types/micromatch': ^4.0.2
   '@types/node': ^17.0.2
   '@types/vscode': ^1.63.1
   conventional-changelog-cli: ^2.1.1
   eslint: ^7.32.0
   jest: ^27.4.5
   lodash: ^4.17.21
-  minimatch: ^3.0.4
+  micromatch: ^4.0.4
   ts-jest: ^27.1.2
   ts-node: ^10.4.0
   tsup: ^5.11.7
@@ -22,14 +22,14 @@ devDependencies:
   '@0x-jerry/eslint-config': registry.npmmirror.com/@0x-jerry/eslint-config/0.2.0_eslint@7.32.0+typescript@4.5.4
   '@types/jest': registry.npmmirror.com/@types/jest/27.0.3
   '@types/lodash': registry.npmmirror.com/@types/lodash/4.14.178
-  '@types/minimatch': registry.npmmirror.com/@types/minimatch/3.0.5
+  '@types/micromatch': registry.npmmirror.com/@types/micromatch/4.0.2
   '@types/node': registry.npmmirror.com/@types/node/17.0.2
   '@types/vscode': registry.npmmirror.com/@types/vscode/1.63.1
   conventional-changelog-cli: registry.nlark.com/conventional-changelog-cli/2.1.1
   eslint: registry.npmmirror.com/eslint/7.32.0
   jest: registry.npmmirror.com/jest/27.4.5_ts-node@10.4.0
   lodash: registry.npmmirror.com/lodash/4.17.21
-  minimatch: registry.nlark.com/minimatch/3.0.4
+  micromatch: registry.nlark.com/micromatch/4.0.4
   ts-jest: registry.npmmirror.com/ts-jest/27.1.2_b65cae1b46840061996b6cc0ea16ca56
   ts-node: registry.npmmirror.com/ts-node/10.4.0_3fe8d9d895bdd4dd9a3533ca7d84518e
   tsup: registry.npmmirror.com/tsup/5.11.7_ts-node@10.4.0+typescript@4.5.4
@@ -1138,7 +1138,7 @@ packages:
       '@nodelib/fs.walk': registry.nlark.com/@nodelib/fs.walk/1.2.8
       glob-parent: registry.npmmirror.com/glob-parent/5.1.2
       merge2: registry.nlark.com/merge2/1.4.1
-      micromatch: registry.npmmirror.com/micromatch/4.0.4
+      micromatch: registry.nlark.com/micromatch/4.0.4
     dev: true
 
   registry.nlark.com/fast-json-stable-stringify/2.1.0:
@@ -1857,6 +1857,16 @@ packages:
     name: merge2
     version: 1.4.1
     engines: {node: '>= 8'}
+    dev: true
+
+  registry.nlark.com/micromatch/4.0.4:
+    resolution: {integrity: sha1-iW1Rnf6dsl/OlM63pQCRm/iB6/k=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/micromatch/download/micromatch-4.0.4.tgz}
+    name: micromatch
+    version: 4.0.4
+    engines: {node: '>=8.6'}
+    dependencies:
+      braces: registry.nlark.com/braces/3.0.2
+      picomatch: registry.nlark.com/picomatch/2.3.0
     dev: true
 
   registry.nlark.com/mimic-fn/2.1.0:
@@ -3323,7 +3333,7 @@ packages:
       jest-util: registry.npmmirror.com/jest-util/27.4.2
       jest-validate: registry.npmmirror.com/jest-validate/27.4.2
       jest-watcher: registry.npmmirror.com/jest-watcher/27.4.2
-      micromatch: registry.npmmirror.com/micromatch/4.0.4
+      micromatch: registry.nlark.com/micromatch/4.0.4
       rimraf: registry.npmmirror.com/rimraf/3.0.2
       slash: registry.nlark.com/slash/3.0.0
       strip-ansi: registry.npmmirror.com/strip-ansi/6.0.1
@@ -3465,7 +3475,7 @@ packages:
       jest-haste-map: registry.npmmirror.com/jest-haste-map/27.4.5
       jest-regex-util: registry.npmmirror.com/jest-regex-util/27.4.0
       jest-util: registry.npmmirror.com/jest-util/27.4.2
-      micromatch: registry.npmmirror.com/micromatch/4.0.4
+      micromatch: registry.nlark.com/micromatch/4.0.4
       pirates: registry.npmmirror.com/pirates/4.0.4
       slash: registry.nlark.com/slash/3.0.0
       source-map: registry.nlark.com/source-map/0.6.1
@@ -3545,6 +3555,12 @@ packages:
       '@babel/types': registry.npmmirror.com/@babel/types/7.16.0
     dev: true
 
+  registry.npmmirror.com/@types/braces/3.0.1:
+    resolution: {integrity: sha1-WihNGTz8Yauy5aUNNuu8UNlCoys=, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/braces/download/@types/braces-3.0.1.tgz}
+    name: '@types/braces'
+    version: 3.0.1
+    dev: true
+
   registry.npmmirror.com/@types/graceful-fs/4.1.5:
     resolution: {integrity: sha1-If+6DZjaQ1DbZIkfkqnl2zzbThU=, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/graceful-fs/download/@types/graceful-fs-4.1.5.tgz}
     name: '@types/graceful-fs'
@@ -3596,10 +3612,12 @@ packages:
     version: 4.14.178
     dev: true
 
-  registry.npmmirror.com/@types/minimatch/3.0.5:
-    resolution: {integrity: sha1-EAHMXmo3BLg8I2An538vWOoBD0A=, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/minimatch/download/@types/minimatch-3.0.5.tgz}
-    name: '@types/minimatch'
-    version: 3.0.5
+  registry.npmmirror.com/@types/micromatch/4.0.2:
+    resolution: {integrity: sha1-zinIsWanO/mApXJ7HkpNCZllFR0=, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/micromatch/download/@types/micromatch-4.0.2.tgz}
+    name: '@types/micromatch'
+    version: 4.0.2
+    dependencies:
+      '@types/braces': registry.npmmirror.com/@types/braces/3.0.1
     dev: true
 
   registry.npmmirror.com/@types/minimist/1.2.2:
@@ -5057,7 +5075,7 @@ packages:
       jest-runner: registry.npmmirror.com/jest-runner/27.4.5
       jest-util: registry.npmmirror.com/jest-util/27.4.2
       jest-validate: registry.npmmirror.com/jest-validate/27.4.2
-      micromatch: registry.npmmirror.com/micromatch/4.0.4
+      micromatch: registry.nlark.com/micromatch/4.0.4
       pretty-format: registry.npmmirror.com/pretty-format/27.4.2
       slash: registry.nlark.com/slash/3.0.0
       ts-node: registry.npmmirror.com/ts-node/10.4.0_3fe8d9d895bdd4dd9a3533ca7d84518e
@@ -5159,7 +5177,7 @@ packages:
       jest-serializer: registry.npmmirror.com/jest-serializer/27.4.0
       jest-util: registry.npmmirror.com/jest-util/27.4.2
       jest-worker: registry.npmmirror.com/jest-worker/27.4.5
-      micromatch: registry.npmmirror.com/micromatch/4.0.4
+      micromatch: registry.nlark.com/micromatch/4.0.4
       walker: registry.npmmirror.com/walker/1.0.8
     optionalDependencies:
       fsevents: registry.npmmirror.com/fsevents/2.3.2
@@ -5226,7 +5244,7 @@ packages:
       '@types/stack-utils': registry.npmmirror.com/@types/stack-utils/2.0.1
       chalk: registry.npmmirror.com/chalk/4.1.2
       graceful-fs: registry.npmmirror.com/graceful-fs/4.2.8
-      micromatch: registry.npmmirror.com/micromatch/4.0.4
+      micromatch: registry.nlark.com/micromatch/4.0.4
       pretty-format: registry.npmmirror.com/pretty-format/27.4.2
       slash: registry.nlark.com/slash/3.0.0
       stack-utils: registry.nlark.com/stack-utils/2.0.5
@@ -5617,16 +5635,6 @@ packages:
       trim-newlines: registry.nlark.com/trim-newlines/3.0.1
       type-fest: registry.npmmirror.com/type-fest/0.18.1
       yargs-parser: registry.npmmirror.com/yargs-parser/20.2.9
-    dev: true
-
-  registry.npmmirror.com/micromatch/4.0.4:
-    resolution: {integrity: sha1-iW1Rnf6dsl/OlM63pQCRm/iB6/k=, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/micromatch/download/micromatch-4.0.4.tgz}
-    name: micromatch
-    version: 4.0.4
-    engines: {node: '>=8.6'}
-    dependencies:
-      braces: registry.nlark.com/braces/3.0.2
-      picomatch: registry.nlark.com/picomatch/2.3.0
     dev: true
 
   registry.npmmirror.com/mime-db/1.51.0:

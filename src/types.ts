@@ -1,10 +1,11 @@
 export interface UserConfiguration {
   /**
-   * Do not encrypt those files. Support glob pattern.
-   *
-   * example: exclude `.jpg` files.
-   *
-   * "exclude": ["**\/*.jpg"]
+   * @default ["**\/*.md"]
+   */
+  include: string[];
+
+  /**
+   * @default []
    */
   exclude: string[];
 }

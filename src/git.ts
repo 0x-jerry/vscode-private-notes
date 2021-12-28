@@ -18,7 +18,7 @@ export enum GitStatus {
 export type GitStatusMap = Map<string, GitStatus>;
 
 const getGitStatus = async (cwd: string) => {
-  const std = await exec('git status -s', { cwd });
+  const std = await exec('git status -s -u', { cwd });
   const files = std.toString().split(/\n/g).filter(Boolean);
 
   const result: GitStatusMap = new Map();
@@ -144,9 +144,17 @@ export class Git extends Dispose {
   }
 
   async getFileVersion(hash: string, filePath: string): Promise<Uint8Array> {
-    const hashKey = `${hash}:${JSON.stringify(filePath)}`;
+    const hashKey = JSON.stringify(`${hash}:${filePath}`);
 
-    const fileContent = await this.run(`git cat-file blob ${hashKey}`);
+    let fileContent = Buffer.alloc(0);
+
+    try {
+      fileContent = await this.run(`git cat-file blob ${hashKey}`);
+    } catch (error) {
+      // maybe deleted
+      return Buffer.alloc(0);
+    }
+
     const content = fileContent.toString();
 
     const lfsSign = 'oid sha256:';

@@ -4,17 +4,14 @@ import { Dispose } from './Disposable';
 import { promptPassword } from './promptPassword';
 import { UserConfiguration } from './types';
 import { getEncryptWorkspace } from './utils';
-import minimatch from 'minimatch';
+import micromatch from 'micromatch';
 
 export type Configuration = UserConfiguration;
 
 function defaultConf(): Configuration {
   return {
-    exclude: [
-      // do not encrypt any dot file or `.vscode` config folder
-      '**/.*',
-      '/.vscode/**',
-    ],
+    include: ['**/*.md'],
+    exclude: [],
   };
 }
 
@@ -58,11 +55,15 @@ export class ConfigurationContext extends Dispose {
 
       const parsedConf: UserConfiguration = JSON.parse(confFile.toString());
 
-      for (const exclude of parsedConf.exclude || []) {
-        // Ignore empty rule.
-        if (exclude) {
-          conf.exclude.push(exclude);
-        }
+      const includeRules = (parsedConf.include || []).filter(Boolean);
+      if (includeRules.length) {
+        conf.include = includeRules;
+      }
+
+      const excludeRules = (parsedConf.exclude || []).filter(Boolean);
+
+      if (excludeRules.length) {
+        conf.exclude = excludeRules;
       }
 
       return conf;
@@ -122,11 +123,14 @@ export class ConfigurationContext extends Dispose {
     if (!root) return true;
 
     const baseUrl = root.uri.path || '';
+    const list = [file.path.slice(baseUrl.length)];
 
-    const match = !!this.conf.exclude.find((pattern) =>
-      minimatch(file.path.slice(baseUrl.length), pattern),
-    );
+    const rules = [...this.conf.include, ...this.conf.exclude.map((n) => '!' + n)];
 
-    return match;
+    const match = micromatch(list, rules);
+
+    const isInclude = !!match.length;
+
+    return !isInclude;
   }
 }
