@@ -23,12 +23,14 @@ export async function promptPassword(
 export async function promptNewPassword(): Promise<string | undefined> {
   const password = await window.showInputBox({
     placeHolder: 'Please input new password',
+    password: true,
   });
 
   if (!password) return;
 
   const passwordAgain = await window.showInputBox({
     placeHolder: 'Please input new password again',
+    password: true,
   });
 
   if (!passwordAgain) return;
