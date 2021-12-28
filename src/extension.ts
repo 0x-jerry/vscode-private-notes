@@ -4,6 +4,7 @@ import { ConfigurationContext, configurationExist } from './configuration';
 import { globalCtx } from './context';
 import { EncryptFileDecorationProvider } from './EncryptFileDecoration';
 import { EncryptFSProvider } from './EncryptFsProvider';
+import { activeEncryptGitPanel } from './EncryptGitPanel';
 import { EncryptTerminalProvider } from './EncryptTerminalProvider';
 import { Git } from './git';
 import { StatusBar } from './statusbar';
@@ -48,6 +49,8 @@ export async function activate(context: ExtensionContext) {
       new EncryptTerminalProvider(),
     ),
   );
+
+  activeEncryptGitPanel(context);
 }
 
 export function deactivate() {

@@ -1,7 +1,8 @@
+import path from 'path';
 import {
   CancellationToken,
   Command,
-  Event,
+  EventEmitter,
   ExtensionContext,
   ProviderResult,
   QuickDiffProvider,
@@ -9,26 +10,37 @@ import {
   SourceControlResourceState,
   TextDocumentContentProvider,
   Uri,
-  window,
   workspace,
 } from 'vscode';
+import { globalCtx } from './context';
+import { getReadContent } from './crypto';
 import { Dispose } from './Disposable';
+import { removeRootPath } from './utils';
 
 class EncryptTextDocumentContentProvider implements TextDocumentContentProvider {
   static scheme = 'encrypt-git';
 
-  onDidChange?: Event<Uri> | undefined;
+  _emitter = new EventEmitter<Uri>();
 
-  provideTextDocumentContent(uri: Uri, token: CancellationToken): ProviderResult<string> {
-    throw new Error('Method not implemented.');
+  onDidChange = this._emitter.event;
+
+  async provideTextDocumentContent(uri: Uri, token: CancellationToken): Promise<string> {
+    const res = await globalCtx.git.getLatestVersion(removeRootPath(uri.path));
+
+    const decode = await getReadContent(res);
+
+    return decode.toString();
   }
 }
 
 class EncryptDiffProvider implements QuickDiffProvider {
   provideOriginalResource(uri: Uri, token: CancellationToken): ProviderResult<Uri> {
-    return uri.with({
+    const item = Uri.from({
+      path: uri.path,
       scheme: EncryptTextDocumentContentProvider.scheme,
     });
+
+    return item;
   }
 }
 
@@ -42,6 +54,27 @@ class EncryptSourceControl extends Dispose {
     this.sourceControl.quickDiffProvider = new EncryptDiffProvider();
 
     this.disposable.push(this.sourceControl, this.changeGroup);
+
+    this.disposable.push(
+      globalCtx.git.onDidChangeGitStatus(([status]) => {
+        const resources = [];
+
+        for (const s of status) {
+          resources.push(
+            this.createSourceControlResourceState(
+              Uri.from({
+                path: s[0],
+                scheme: EncryptTextDocumentContentProvider.scheme,
+              }),
+              false,
+            ),
+          );
+        }
+
+        this.changeGroup.resourceStates = resources;
+        this.sourceControl.count = resources.length;
+      }),
+    );
   }
 
   createSourceControlResourceState(docUri: Uri, deleted: boolean): SourceControlResourceState {
@@ -69,7 +102,7 @@ class EncryptSourceControl extends Dispose {
   }
 }
 
-export function active(ctx: ExtensionContext) {
+export function activeEncryptGitPanel(ctx: ExtensionContext) {
   ctx.subscriptions.push(
     workspace.registerTextDocumentContentProvider(
       EncryptTextDocumentContentProvider.scheme,

@@ -119,4 +119,18 @@ export class Git extends Dispose {
 
     this.status = newStatus;
   }, 100);
+
+  async getLatestVersion(filePath: string): Promise<Uint8Array> {
+    const hashStr = await this.run(`git log --pretty="%H" -- ${JSON.stringify(filePath)}`);
+
+    const hash = hashStr.toString().trim().split(/\n/)?.[0];
+
+    if (!hash) {
+      return Buffer.from('');
+    }
+
+    const res = await this.run(`git cat-file blob ${hash}:${JSON.stringify(filePath)}`);
+
+    return res;
+  }
 }

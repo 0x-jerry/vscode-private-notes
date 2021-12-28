@@ -56,6 +56,8 @@ export function getTargetUri(uri: Uri) {
 }
 
 export async function run(cmd: string, opt?: ExecOptions) {
+  // console.log('run cmd:', cmd);
+
   return new Promise<Buffer>((resolve, reject) => {
     exec(
       cmd,
@@ -74,4 +76,10 @@ export async function run(cmd: string, opt?: ExecOptions) {
       },
     );
   });
+}
+
+export function removeRootPath(str: string) {
+  const splited = str.split(/\//).filter(Boolean);
+
+  return splited.slice(1).join('/');
 }
