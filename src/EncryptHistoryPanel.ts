@@ -12,10 +12,11 @@ import { globalCtx } from './context';
 import { Dispose } from './Disposable';
 import { EncryptFSProvider } from './EncryptFsProvider';
 import { EncryptTextDocumentContentProvider } from './EncryptGitPanel';
+import { CommitHash } from './git';
 import { removeRootPath } from './utils';
 
 class HistoryTreeItem extends TreeItem {
-  constructor(previousCommit: [string, string] | undefined, commit: [string, string], uri: Uri) {
+  constructor(commit: CommitHash, previousCommit: CommitHash | undefined, uri: Uri) {
     super(uri, TreeItemCollapsibleState.None);
 
     const command: Command = {
@@ -24,22 +25,23 @@ class HistoryTreeItem extends TreeItem {
       arguments: [
         previousCommit
           ? uri.with({
-              query: `hash=${previousCommit[0]}`,
+              query: `hash=${previousCommit.hash}`,
             })
           : uri.with({
               query: 'delete=1',
             }),
         uri.with({
-          query: `hash=${commit[0]}`,
+          query: `hash=${commit.hash}`,
         }),
-        `${previousCommit?.[1] || 'Local Changes'} ↔ ${commit[1]}`,
+        `${previousCommit?.title || 'Empty'} ↔ ${commit.title}`,
       ],
       tooltip: 'Diff your changes',
     };
 
     this.command = command;
 
-    this.label = `${commit[1]}#${commit[0].slice(0, 8)}`;
+    this.label = `${commit.title}`;
+    this.description = `#${commit.hash.slice(0, 8)}`;
   }
 }
 
@@ -60,21 +62,20 @@ export class HistoryTreeProvider extends Dispose implements TreeDataProvider<His
         const commits = await globalCtx.git.getFileHistory(removeRootPath(uri.path));
         const items: HistoryTreeItem[] = [];
 
-        let previousCommit: [string, string] | undefined;
+        let idx = 1;
+
         for (const commit of commits) {
           items.push(
             new HistoryTreeItem(
-              previousCommit,
               commit,
+              commits[idx++],
               Uri.from({
                 scheme: EncryptTextDocumentContentProvider.scheme,
                 path: uri.path,
-                query: `hash=${commit[0]}`,
+                query: `hash=${commit.hash}`,
               }),
             ),
           );
-
-          previousCommit = commit;
         }
 
         this.items = items;

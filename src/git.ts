@@ -179,7 +179,7 @@ export class Git extends Dispose {
    * @param filePath
    * @returns [hash, commit msg][]
    */
-  async getFileHistory(filePath: string): Promise<[string, string][]> {
+  async getFileHistory(filePath: string): Promise<CommitHash[]> {
     const hashStr = await this.run(`git log --pretty="%H %s" -- ${JSON.stringify(filePath)}`);
 
     const commits = hashStr
@@ -189,9 +189,19 @@ export class Git extends Dispose {
       .map((n) => {
         const strs = n.trim().split(/\s/);
 
-        return [strs[0], strs.slice(1).join(' ')] as [string, string];
+        const commit: CommitHash = {
+          hash: strs[0],
+          title: strs.slice(1).join(' '),
+        };
+
+        return commit;
       });
 
     return commits;
   }
+}
+
+export interface CommitHash {
+  hash: string;
+  title: string;
 }
