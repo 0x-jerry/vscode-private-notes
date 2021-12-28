@@ -15,7 +15,7 @@ import { globalCtx } from './context';
 import { getReadContent } from './crypto';
 import { Dispose } from './Disposable';
 import { GitStatus } from './git';
-import { getEncryptWorkspace, removeRootPath } from './utils';
+import { getEncryptWorkspace, parseQuery, removeRootPath } from './utils';
 
 class EncryptTextDocumentContentProvider implements TextDocumentContentProvider {
   static scheme = 'encrypt-git';
@@ -25,6 +25,19 @@ class EncryptTextDocumentContentProvider implements TextDocumentContentProvider 
   onDidChange = this._emitter.event;
 
   async provideTextDocumentContent(uri: Uri, token: CancellationToken): Promise<string> {
+    const query = parseQuery(uri.query);
+
+    if (query.get('delete') === '1') {
+      return '';
+    }
+
+    if (query.get('proxy') === '1') {
+      const realUri = Uri.parse(uri.path);
+      const res = await workspace.fs.readFile(realUri);
+
+      return res.toString();
+    }
+
     const res = await globalCtx.git.getLatestVersion(removeRootPath(uri.path));
 
     const decode = await getReadContent(res);
@@ -72,21 +85,29 @@ class EncryptSourceControl extends Dispose {
     );
   }
 
-  createSourceControlResourceState(docUri: Uri, deleted: boolean): SourceControlResourceState {
-    const sourceUri = covertToSourceUri(docUri);
+  createSourceControlResourceState(uri: Uri, deleted: boolean): SourceControlResourceState {
+    const sourceUri = covertToSourceUri(uri);
 
-    const relativePath = removeRootPath(docUri.path);
-    const command: Command | undefined = !deleted
-      ? {
-          title: 'Show changes',
-          command: 'vscode.diff',
-          arguments: [sourceUri, docUri, `${relativePath} ↔ Local changes`],
-          tooltip: 'Diff your changes',
-        }
-      : undefined;
+    const query = parseQuery('');
+    query.set('delete', deleted ? '1' : '0');
+    query.set('proxy', '1');
+
+    const currentUri = sourceUri.with({
+      query: query.toString(),
+      path: uri.toString(),
+    });
+
+    const relativePath = removeRootPath(uri.path);
+
+    const command: Command = {
+      title: 'Show changes',
+      command: 'vscode.diff',
+      arguments: [sourceUri, currentUri, `${relativePath} ↔ Local changes`],
+      tooltip: 'Diff your changes',
+    };
 
     const resourceState: SourceControlResourceState = {
-      resourceUri: docUri.with({
+      resourceUri: sourceUri.with({
         path: relativePath,
       }),
       command: command,
