@@ -69,6 +69,8 @@ class EncryptSourceControl extends Dispose {
   constructor() {
     super();
     this.sourceControl.quickDiffProvider = new EncryptDiffProvider();
+    // todo: respect commit message
+    this.sourceControl.inputBox.placeholder = 'Message (meta+Enter to commit)';
 
     this.disposable.push(this.sourceControl, this.changeGroup);
 
