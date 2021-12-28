@@ -121,6 +121,14 @@
           "title": "Encrypt Terminal Profile"
         }
       ]
+    },
+    "views": {
+      "scm": [
+        {
+          "id": "encrypt.single.history",
+          "name": "File History"
+        }
+      ]
     }
   },
   "scripts": {

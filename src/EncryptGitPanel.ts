@@ -17,7 +17,7 @@ import { Dispose } from './Disposable';
 import { GitStatus } from './git';
 import { getEncryptWorkspace, parseQuery, removeRootPath } from './utils';
 
-class EncryptTextDocumentContentProvider implements TextDocumentContentProvider {
+export class EncryptTextDocumentContentProvider implements TextDocumentContentProvider {
   static scheme = 'encrypt-git';
 
   _emitter = new EventEmitter<Uri>();
@@ -29,6 +29,15 @@ class EncryptTextDocumentContentProvider implements TextDocumentContentProvider 
 
     if (query.get('delete') === '1') {
       return '';
+    }
+
+    const hasHash = query.get('hash');
+
+    if (hasHash) {
+      const res = await globalCtx.git.getFileVersion(hasHash, removeRootPath(uri.path));
+      const decode = await getReadContent(res);
+
+      return decode.toString();
     }
 
     if (query.get('proxy') === '1') {

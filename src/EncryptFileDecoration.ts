@@ -11,6 +11,7 @@ import {
 } from 'vscode';
 import { globalCtx } from './context';
 import { Dispose } from './Disposable';
+import { EncryptFSProvider } from './EncryptFsProvider';
 import { GitStatus, GitStatusMap } from './git';
 import { getEncryptWorkspace } from './utils';
 
@@ -55,10 +56,8 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
     uri: Uri,
     token: CancellationToken,
   ): Promise<FileDecoration | null | undefined> {
-    return this.getStatus(uri);
-  }
+    if (uri.scheme !== EncryptFSProvider.scheme) return;
 
-  async getStatus(uri: Uri) {
     return this.fileStatus.get(uri.path);
   }
 

@@ -140,6 +140,10 @@ export class Git extends Dispose {
       return Buffer.alloc(0);
     }
 
+    return this.getFileVersion(hash, filePath);
+  }
+
+  async getFileVersion(hash: string, filePath: string): Promise<Uint8Array> {
     const hashKey = `${hash}:${JSON.stringify(filePath)}`;
 
     const fileContent = await this.run(`git cat-file blob ${hashKey}`);
@@ -168,5 +172,26 @@ export class Git extends Dispose {
     );
 
     return lfsContent;
+  }
+
+  /**
+   *
+   * @param filePath
+   * @returns [hash, commit msg][]
+   */
+  async getFileHistory(filePath: string): Promise<[string, string][]> {
+    const hashStr = await this.run(`git log --pretty="%H %s" -- ${JSON.stringify(filePath)}`);
+
+    const commits = hashStr
+      .toString()
+      .trim()
+      .split(/\n+/g)
+      .map((n) => {
+        const strs = n.trim().split(/\s/);
+
+        return [strs[0], strs.slice(1).join(' ')] as [string, string];
+      });
+
+    return commits;
   }
 }

@@ -5,6 +5,7 @@ import { globalCtx } from './context';
 import { EncryptFileDecorationProvider } from './EncryptFileDecoration';
 import { EncryptFSProvider } from './EncryptFsProvider';
 import { activeEncryptGitPanel } from './EncryptGitPanel';
+import { HistoryTreeProvider } from './EncryptHistoryPanel';
 import { EncryptTerminalProvider } from './EncryptTerminalProvider';
 import { Git } from './git';
 import { StatusBar } from './statusbar';
@@ -51,6 +52,9 @@ export async function activate(context: ExtensionContext) {
   );
 
   activeEncryptGitPanel(context);
+  context.subscriptions.push(
+    window.registerTreeDataProvider(HistoryTreeProvider.id, new HistoryTreeProvider()),
+  );
 }
 
 export function deactivate() {
