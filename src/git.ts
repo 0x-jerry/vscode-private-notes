@@ -8,7 +8,12 @@ import { globalCtx } from './context';
 import { Dispose } from './Disposable';
 import { run as exec } from './utils';
 
-export type GitStatus = 'A' | 'M' | 'D' | 'U';
+export enum GitStatus {
+  Added = 'A',
+  Modified = 'M',
+  Deleted = 'D',
+  Untracked = 'U',
+}
 
 export type GitStatusMap = Map<string, GitStatus>;
 
@@ -19,6 +24,7 @@ const getGitStatus = async (cwd: string) => {
   const result: GitStatusMap = new Map();
 
   files.forEach((n) => {
+    //  use the secondary status
     let status = n[1] === ' ' ? n[0] : n[1];
     status = status === '?' ? 'U' : status;
 
@@ -122,6 +128,10 @@ export class Git extends Dispose {
   }, 100);
 
   async getLatestVersion(filePath: string): Promise<Uint8Array> {
+    if (!filePath) {
+      throw new Error('Wrong file path: ' + filePath);
+    }
+
     const hashStr = await this.run(`git log --pretty="%H" -- ${JSON.stringify(filePath)}`);
 
     const hash = hashStr.toString().trim().split(/\n/)?.[0];

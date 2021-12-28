@@ -1,4 +1,3 @@
-import path from 'path';
 import {
   CancellationToken,
   Command,
@@ -15,7 +14,8 @@ import {
 import { globalCtx } from './context';
 import { getReadContent } from './crypto';
 import { Dispose } from './Disposable';
-import { removeRootPath } from './utils';
+import { GitStatus } from './git';
+import { getEncryptWorkspace, removeRootPath } from './utils';
 
 class EncryptTextDocumentContentProvider implements TextDocumentContentProvider {
   static scheme = 'encrypt-git';
@@ -35,12 +35,7 @@ class EncryptTextDocumentContentProvider implements TextDocumentContentProvider 
 
 class EncryptDiffProvider implements QuickDiffProvider {
   provideOriginalResource(uri: Uri, token: CancellationToken): ProviderResult<Uri> {
-    const item = Uri.from({
-      path: uri.path,
-      scheme: EncryptTextDocumentContentProvider.scheme,
-    });
-
-    return item;
+    return covertToSourceUri(uri);
   }
 }
 
@@ -59,16 +54,16 @@ class EncryptSourceControl extends Dispose {
       globalCtx.git.onDidChangeGitStatus(([status]) => {
         const resources = [];
 
-        for (const s of status) {
-          resources.push(
-            this.createSourceControlResourceState(
-              Uri.from({
-                path: s[0],
-                scheme: EncryptTextDocumentContentProvider.scheme,
-              }),
-              false,
-            ),
-          );
+        const root = getEncryptWorkspace();
+
+        if (root) {
+          for (const s of status) {
+            const uri = Uri.joinPath(root.uri, s[0]);
+
+            const deleted = s[1] === GitStatus.Deleted;
+
+            resources.push(this.createSourceControlResourceState(uri, deleted));
+          }
         }
 
         this.changeGroup.resourceStates = resources;
@@ -78,19 +73,22 @@ class EncryptSourceControl extends Dispose {
   }
 
   createSourceControlResourceState(docUri: Uri, deleted: boolean): SourceControlResourceState {
-    const sourceUri = docUri;
+    const sourceUri = covertToSourceUri(docUri);
 
+    const relativePath = removeRootPath(docUri.path);
     const command: Command | undefined = !deleted
       ? {
           title: 'Show changes',
           command: 'vscode.diff',
-          arguments: [sourceUri, docUri, `#${docUri.path} ↔ Local changes`],
+          arguments: [sourceUri, docUri, `${relativePath} ↔ Local changes`],
           tooltip: 'Diff your changes',
         }
       : undefined;
 
     const resourceState: SourceControlResourceState = {
-      resourceUri: docUri,
+      resourceUri: docUri.with({
+        path: relativePath,
+      }),
       command: command,
       decorations: {
         strikeThrough: deleted,
@@ -111,4 +109,11 @@ export function activeEncryptGitPanel(ctx: ExtensionContext) {
   );
 
   ctx.subscriptions.push(new EncryptSourceControl());
+}
+
+function covertToSourceUri(uri: Uri) {
+  return Uri.from({
+    path: uri.path,
+    scheme: EncryptTextDocumentContentProvider.scheme,
+  });
 }
