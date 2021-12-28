@@ -104,7 +104,7 @@ export class ConfigurationContext extends Dispose {
       this.load();
     });
 
-    this.addDisposable(watcher);
+    this.disposable.push(watcher);
   }
 
   async load(): Promise<void> {

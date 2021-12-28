@@ -1,11 +1,12 @@
-import { commands, ExtensionContext, window, workspace } from 'vscode';
+import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { Commands, registerCommands } from './commands';
 import { ConfigurationContext, configurationExist } from './configuration';
 import { globalCtx } from './context';
 import { EncryptFileDecorationProvider } from './EncryptFileDecoration';
 import { EncryptFSProvider } from './EncryptFsProvider';
 import { EncryptTerminalProvider } from './EncryptTerminalProvider';
-import { Status } from './statusbar';
+import { Git } from './git';
+import { StatusBar } from './statusbar';
 import { getEncryptWorkspace } from './utils';
 
 export async function activate(context: ExtensionContext) {
@@ -20,8 +21,11 @@ export async function activate(context: ExtensionContext) {
     return;
   }
 
+  globalCtx.git = new Git(Uri.parse(encryptWs.uri.fragment));
+  await globalCtx.git.init();
+
   globalCtx.configuration = new ConfigurationContext();
-  context.subscriptions.push(globalCtx.configuration);
+  context.subscriptions.push(globalCtx.configuration, globalCtx.git);
 
   const encryptFs = new EncryptFSProvider();
 
@@ -31,7 +35,7 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
-  const status = new Status();
+  const status = new StatusBar();
   context.subscriptions.push(status);
 
   const encryptFileDecorationProvider = new EncryptFileDecorationProvider();
