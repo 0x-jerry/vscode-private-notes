@@ -1,3 +1,23 @@
+# [0.4.0](https://github.com/cwxyz007/vscode-writing/compare/v0.3.1...v0.4.0) (2021-12-28)
+
+
+### Features
+
+* suppor quick diff ([f046836](https://github.com/cwxyz007/vscode-writing/commit/f04683671626699be91bf11825c4698a4d03e670))
+* support git source control panel ([dbbe306](https://github.com/cwxyz007/vscode-writing/commit/dbbe3069b0f822bf62d83ea45f54533b33e0e2e7))
+* support single file history ([b8eecc8](https://github.com/cwxyz007/vscode-writing/commit/b8eecc8b22b91871041ed07be4fccb3592b03d3e))
+
+
+### Performance Improvements
+
+* commit tip ([1f9fb87](https://github.com/cwxyz007/vscode-writing/commit/1f9fb87bbf8072e4a9439967157b8a4a9728fc83))
+* mask password when reset ([e3a8e8d](https://github.com/cwxyz007/vscode-writing/commit/e3a8e8d7756ac885bacb0449ad3b4c0c6dc57cde))
+* sort history diff view ([00045c4](https://github.com/cwxyz007/vscode-writing/commit/00045c4424414e173312dc44e8ec807dc93594dc))
+* support diff with deleted file ([cc84931](https://github.com/cwxyz007/vscode-writing/commit/cc849318b87835370391aa51fda6b891b19a5465))
+* support diff with git LFS ([0f7417f](https://github.com/cwxyz007/vscode-writing/commit/0f7417fb8e37694c03cfaf9e43d0d3b2ee2e6ebf))
+
+
+
 ## [0.3.1](https://github.com/cwxyz007/vscode-writing/compare/v0.3.0...v0.3.1) (2021-12-27)
 
 
