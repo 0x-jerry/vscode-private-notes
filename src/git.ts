@@ -1,5 +1,6 @@
 import { ExecOptions } from 'child_process';
 import { watch } from 'fs';
+import fs from 'fs/promises';
 import debounce from 'lodash/debounce';
 import path from 'path';
 import { EventEmitter, Uri, workspace } from 'vscode';
@@ -126,11 +127,36 @@ export class Git extends Dispose {
     const hash = hashStr.toString().trim().split(/\n/)?.[0];
 
     if (!hash) {
-      return Buffer.from('');
+      return Buffer.alloc(0);
     }
 
-    const res = await this.run(`git cat-file blob ${hash}:${JSON.stringify(filePath)}`);
+    const hashKey = `${hash}:${JSON.stringify(filePath)}`;
 
-    return res;
+    const fileContent = await this.run(`git cat-file blob ${hashKey}`);
+    const content = fileContent.toString();
+
+    const lfsSign = 'oid sha256:';
+    const isLfs = content.includes(lfsSign);
+
+    if (!isLfs) {
+      return fileContent;
+    }
+
+    try {
+      await this.run(`git lfs fsck ${hashKey}`);
+    } catch (error) {
+      await this.run(`git cat-file blob ${hashKey} | git lfs smudge`);
+    }
+
+    const sha = content.match(/^oid sha256:[a-z0-9]+$/m);
+    const oid = sha?.[0].slice(lfsSign.length);
+
+    if (!oid) return Buffer.alloc(0);
+
+    const lfsContent = await fs.readFile(
+      path.join(this.cwd, '.git', 'lfs', 'objects', oid.slice(0, 2), oid.slice(2, 4), oid),
+    );
+
+    return lfsContent;
   }
 }
