@@ -1,5 +1,5 @@
 import path from 'path';
-import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
+import { commands, ExtensionContext, scm, Uri, window, workspace } from 'vscode';
 import { globalCtx } from './context';
 import { decryptAllFiles, reEncryptAllFiles } from './crypto';
 import { EncryptFSProvider } from './EncryptFsProvider';
@@ -12,6 +12,7 @@ export enum Commands {
   EncryptAllFiles = 'encrypt.encryptAllFiles',
   DecryptAllFiles = 'encrypt.decryptAllFiles',
   Lock = 'encrypt.lock',
+  GitCommit = 'encrypt.git.commit',
 }
 
 async function setPasswordCommand() {

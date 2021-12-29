@@ -1,6 +1,7 @@
 import {
   CancellationToken,
   Command,
+  commands,
   EventEmitter,
   ExtensionContext,
   ProviderResult,
@@ -9,8 +10,10 @@ import {
   SourceControlResourceState,
   TextDocumentContentProvider,
   Uri,
+  window,
   workspace,
 } from 'vscode';
+import { Commands } from './commands';
 import { globalCtx } from './context';
 import { getReadContent } from './crypto';
 import { Dispose } from './Disposable';
@@ -68,9 +71,18 @@ class EncryptSourceControl extends Dispose {
 
   constructor() {
     super();
+    this.disposable.push(
+      commands.registerCommand(Commands.GitCommit, () => this.gitCommitCommand()),
+    );
+
     this.sourceControl.quickDiffProvider = new EncryptDiffProvider();
-    // todo: respect commit message
+
     this.sourceControl.inputBox.placeholder = 'Message (meta+Enter to commit)';
+
+    this.sourceControl.acceptInputCommand = {
+      title: 'Commit to git',
+      command: Commands.GitCommit,
+    };
 
     this.disposable.push(this.sourceControl, this.changeGroup);
 
@@ -94,6 +106,17 @@ class EncryptSourceControl extends Dispose {
         this.sourceControl.count = resources.length;
       }),
     );
+  }
+
+  async gitCommitCommand() {
+    const msg = this.sourceControl.inputBox.value;
+
+    if (!msg) return;
+
+    await globalCtx.git.run('git add .');
+    await globalCtx.git.run(`git commit -m ${JSON.stringify(msg)}`);
+
+    this.sourceControl.inputBox.value = '';
   }
 
   createSourceControlResourceState(uri: Uri, deleted: boolean): SourceControlResourceState {

@@ -86,6 +86,11 @@
         "command": "encrypt.decryptAllFiles",
         "title": "Decrypt all files",
         "category": "Encrypt"
+      },
+      {
+        "command": "encrypt.git.commit",
+        "title": "Add all stage file then commit.",
+        "category": "Encrypt"
       }
     ],
     "menus": {
