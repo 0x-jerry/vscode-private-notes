@@ -30,12 +30,21 @@ const decorations: Record<GitStatus, FileDecoration> = {
   ),
 };
 
+const otherDecorations = {
+  ignore: new FileDecoration(
+    '',
+    'Gitignore file',
+    new ThemeColor('gitDecoration.ignoredResourceForeground'),
+  ),
+};
+
 export class EncryptFileDecorationProvider extends Dispose implements FileDecorationProvider {
   _emitter = new EventEmitter<Uri | Uri[]>();
 
   onDidChangeFileDecorations = this._emitter.event;
 
   fileStatus = new Map<string, FileDecoration>();
+  files = new Set<string>();
 
   constructor() {
     super();
@@ -50,6 +59,15 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
     );
 
     globalCtx.git.updateGitStatus();
+
+    this.disposable.push(
+      globalCtx.configuration.onDidConfigChanged(() => {
+        const uris: Uri[] = [];
+        this.files.forEach((i) => uris.push(Uri.parse(i)));
+
+        this._emitter.fire(uris);
+      }),
+    );
   }
 
   async provideFileDecoration(
@@ -58,7 +76,16 @@ export class EncryptFileDecorationProvider extends Dispose implements FileDecora
   ): Promise<FileDecoration | null | undefined> {
     if (uri.scheme !== EncryptFSProvider.scheme) return;
 
-    return this.fileStatus.get(uri.path);
+    let status;
+    if (globalCtx.configuration.isIgnored(uri)) {
+      status = otherDecorations.ignore;
+    } else {
+      status = this.fileStatus.get(uri.path);
+    }
+
+    this.files.add(uri.toString());
+
+    return status;
   }
 
   updateGitStatus = debounce(async (newStatus: GitStatusMap) => {

@@ -1,4 +1,4 @@
-import { Uri, workspace } from 'vscode';
+import { Uri, workspace, EventEmitter } from 'vscode';
 import { globalCtx } from './context';
 import { Dispose } from './Disposable';
 import { promptPassword } from './promptPassword';
@@ -11,7 +11,7 @@ export type Configuration = UserConfiguration;
 function defaultConf(): Configuration {
   return {
     include: ['**/*.md'],
-    exclude: [],
+    exclude: ['.encrypt.json'],
   };
 }
 
@@ -37,7 +37,15 @@ export async function configurationExist() {
 export class ConfigurationContext extends Dispose {
   conf: Configuration = defaultConf();
 
+  rules = {
+    gitignore: [] as string[],
+  };
+
   #masterKey: Uint8Array = Buffer.alloc(0);
+
+  _emitter = new EventEmitter<void>();
+
+  onDidConfigChanged = this._emitter.event;
 
   constructor() {
     super();
@@ -91,7 +99,7 @@ export class ConfigurationContext extends Dispose {
     /**
      * todo: when config changed, excluded files should be decrypt.
      */
-    const watcher = workspace.createFileSystemWatcher('**/' + confFileName);
+    const watcher = workspace.createFileSystemWatcher(`**/{${confFileName},.gitignore}`);
 
     watcher.onDidChange(() => {
       this.load();
@@ -116,19 +124,66 @@ export class ConfigurationContext extends Dispose {
 
     const conf = await this.#load(root.uri);
     this.conf = conf;
+
+    const excludes = await loadGitignore(Uri.joinPath(root.uri, '.gitignore'));
+    this.rules.gitignore = excludes;
+    this._emitter.fire();
   }
 
   isExclude(file: Uri): boolean {
     const root = getEncryptWorkspace();
     if (!root) return true;
 
-    const baseUrl = root.uri.path || '';
+    const baseUrl = root.uri.path;
     const filePath = file.path.slice(baseUrl.length);
 
-    const rules = [...this.conf.include, ...this.conf.exclude.map((n) => '!' + n)];
+    const isInclude = micromatch.isMatch(filePath, this.conf.include, {
+      cwd: '/',
+    });
 
-    const isInclude = micromatch.isMatch(filePath, rules);
+    if (!isInclude) {
+      return true;
+    }
 
-    return !isInclude;
+    const isExclude = micromatch.isMatch(
+      filePath,
+      [...this.conf.exclude, ...this.rules.gitignore],
+      {
+        cwd: '/',
+        contains: true,
+      },
+    );
+
+    return isExclude;
+  }
+
+  isIgnored(file: Uri): boolean {
+    const root = getEncryptWorkspace();
+    if (!root) return true;
+
+    const baseUrl = root.uri.path;
+    const filePath = file.path.slice(baseUrl.length);
+
+    const isIgnored = micromatch.isMatch(filePath, this.rules.gitignore, {
+      cwd: '/',
+      contains: true,
+    });
+
+    return isIgnored;
+  }
+}
+
+async function loadGitignore(uri: Uri): Promise<string[]> {
+  try {
+    const gitignore = await workspace.fs.readFile(uri);
+    const rules = gitignore
+      .toString()
+      .split(/\n+/g)
+      .map((n) => n.trim())
+      .filter((n) => Boolean(n) && !n.startsWith('#'));
+
+    return rules;
+  } catch (error) {
+    return [];
   }
 }
