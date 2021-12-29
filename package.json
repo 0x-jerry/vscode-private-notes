@@ -91,6 +91,16 @@
         "command": "encrypt.git.commit",
         "title": "Add all stage file then commit.",
         "category": "Encrypt"
+      },
+      {
+        "command": "encrypt.encrypt",
+        "title": "Encrypt current file",
+        "icon": "$(unlock)"
+      },
+      {
+        "command": "encrypt.decrypt",
+        "title": "Decrypt current file",
+        "icon": "$(lock)"
       }
     ],
     "menus": {
@@ -98,6 +108,18 @@
         {
           "command": "encrypt.initWorkspace",
           "when": "workbenchState != workspace"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "encrypt.decrypt",
+          "group": "navigation",
+          "when": "encrypt.currentFileEncrypted"
+        },
+        {
+          "command": "encrypt.encrypt",
+          "group": "navigation",
+          "when": "!encrypt.currentFileEncrypted"
         }
       ]
     },

@@ -8,7 +8,6 @@ import { activeEncryptGitPanel } from './EncryptGitPanel';
 import { HistoryTreeProvider } from './EncryptHistoryPanel';
 import { EncryptTerminalProvider } from './EncryptTerminalProvider';
 import { Git } from './git';
-import { StatusBar } from './statusbar';
 import { getEncryptWorkspace } from './utils';
 
 export async function activate(context: ExtensionContext) {
@@ -36,9 +35,6 @@ export async function activate(context: ExtensionContext) {
       isCaseSensitive: true,
     }),
   );
-
-  const status = new StatusBar();
-  context.subscriptions.push(status);
 
   const encryptFileDecorationProvider = new EncryptFileDecorationProvider();
   context.subscriptions.push(encryptFileDecorationProvider);

@@ -13,6 +13,8 @@ export enum Commands {
   DecryptAllFiles = 'encrypt.decryptAllFiles',
   Lock = 'encrypt.lock',
   GitCommit = 'encrypt.git.commit',
+  EncryptCurrentFile = 'encrypt.encrypt',
+  DecryptCurrentFile = 'encrypt.decrypt',
 }
 
 async function setPasswordCommand() {
@@ -83,12 +85,38 @@ async function initWorkspaceCommand() {
   commands.executeCommand('vscode.openFolder', uri);
 }
 
+async function encryptCurrentFileCommand() {
+  // todo
+  console.log('encrypt');
+}
+
+async function decryptCurrentFileCommand() {
+  // todo
+  console.log('decrypt');
+}
+
 async function lockCommand() {
   await commands.executeCommand('workbench.action.closeAllEditors');
   globalCtx.configuration.setMasterKey();
 }
 
 export function registerCommands(ctx: ExtensionContext) {
+  ctx.subscriptions.push(
+    window.onDidChangeActiveTextEditor((e) => {
+      if (!e) return;
+      const excluded = globalCtx.configuration.isExclude(e.document.uri);
+
+      commands.executeCommand('setContext', 'encrypt.currentFileEncrypted', !excluded);
+    }),
+  );
+
+  ctx.subscriptions.push(
+    commands.registerCommand(Commands.EncryptCurrentFile, encryptCurrentFileCommand),
+  );
+  ctx.subscriptions.push(
+    commands.registerCommand(Commands.DecryptCurrentFile, decryptCurrentFileCommand),
+  );
+
   ctx.subscriptions.push(commands.registerCommand(Commands.Lock, lockCommand));
   ctx.subscriptions.push(commands.registerCommand(Commands.InitWorkspace, initWorkspaceCommand));
   ctx.subscriptions.push(commands.registerCommand(Commands.SetPassword, setPasswordCommand));
