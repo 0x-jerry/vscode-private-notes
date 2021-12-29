@@ -87,10 +87,12 @@ export class EncryptFSProvider implements FileSystemProvider {
     const newOldUri = getTargetUri(oldUri);
     const newNewUri = getTargetUri(newUri);
 
-    // await workspace.fs.rename(newOldUri, newNewUri, options);
-
-    await workspace.fs.copy(newOldUri, newNewUri, options);
-    await workspace.fs.delete(newOldUri);
+    if ((await workspace.fs.stat(newOldUri)).type === FileType.Directory) {
+      await workspace.fs.rename(newOldUri, newNewUri, options);
+    } else {
+      await workspace.fs.copy(newOldUri, newNewUri, options);
+      await workspace.fs.delete(newOldUri);
+    }
 
     this._fireSoon(
       { type: FileChangeType.Deleted, uri: oldUri },
