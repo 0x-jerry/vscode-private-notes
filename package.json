@@ -163,15 +163,16 @@
     "vscode:prepublish": "yarn build",
     "dev": "tsup src/extension.ts --sourcemap --watch",
     "build": "tsup src/extension.ts --sourcemap",
-    "version": "yarn changelog && git add CHANGELOG.md",
     "test": "jest",
-    "schema": "typescript-json-schema src/types.ts UserConfiguration -o syntaxes/encrypt.schema.json"
+    "schema": "typescript-json-schema src/types.ts UserConfiguration -o syntaxes/encrypt.schema.json",
+    "release": "x-release"
   },
   "peerDependencies": {
     "vscode": "*"
   },
   "devDependencies": {
     "@0x-jerry/eslint-config": "^0.2.0",
+    "@0x-jerry/x-release": "^0.2.0",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/micromatch": "^4.0.2",
