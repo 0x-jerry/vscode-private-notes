@@ -4,7 +4,7 @@ import { Dispose } from './Disposable';
 import { promptPassword } from './promptPassword';
 import { UserConfiguration } from './types';
 import { getEncryptWorkspace } from './utils';
-import micromatch from 'micromatch';
+import micromatch, { match } from 'micromatch';
 
 export type Configuration = UserConfiguration;
 
@@ -12,6 +12,10 @@ function defaultConf(): Configuration {
   return {
     include: ['**/*.md'],
     exclude: ['.encrypt.json'],
+    extension: {
+      include: [],
+      exclude: [],
+    },
   };
 }
 
@@ -61,7 +65,7 @@ export class ConfigurationContext extends Dispose {
 
       const conf = defaultConf();
 
-      const parsedConf: UserConfiguration = JSON.parse(confFile.toString());
+      const parsedConf: Partial<UserConfiguration> = JSON.parse(confFile.toString());
 
       const includeRules = (parsedConf.include || []).filter(Boolean);
       if (includeRules.length) {
@@ -73,6 +77,8 @@ export class ConfigurationContext extends Dispose {
       if (excludeRules.length) {
         conf.exclude = excludeRules;
       }
+
+      Object.assign(conf.extension, parsedConf.extension);
 
       return conf;
     } catch (error) {
@@ -123,36 +129,53 @@ export class ConfigurationContext extends Dispose {
     }
 
     const conf = await this.#load(root.uri);
-    this.conf = conf;
+
+    // simple merge config
+    Object.assign(this.conf, conf);
 
     const excludes = await loadGitignore(Uri.joinPath(root.uri, '.gitignore'));
     this.rules.gitignore = excludes;
     this._emitter.fire();
   }
 
+  async save(): Promise<void> {
+    const root = getEncryptWorkspace();
+    if (!root) {
+      return;
+    }
+
+    const confUri = Uri.joinPath(root.uri, confFileName);
+
+    const content = Buffer.from(JSON.stringify(this.conf, null, 2));
+
+    await workspace.fs.writeFile(confUri, content);
+  }
+
   isExclude(file: Uri): boolean {
     const root = getEncryptWorkspace();
     if (!root) return true;
 
-    const baseUrl = root.uri.path;
+    const baseUrl = root.uri.path + '/';
+    // relative path
     const filePath = file.path.slice(baseUrl.length);
 
-    const isInclude = micromatch.isMatch(filePath, this.conf.include, {
-      cwd: '/',
-    });
+    // use extension conf first
+
+    if (matchGlob(filePath, this.conf.extension.include)) {
+      return false;
+    }
+
+    if (matchGlob(filePath, this.conf.extension.exclude)) {
+      return true;
+    }
+
+    const isInclude = matchGlob(filePath, this.conf.include);
 
     if (!isInclude) {
       return true;
     }
 
-    const isExclude = micromatch.isMatch(
-      filePath,
-      [...this.conf.exclude, ...this.rules.gitignore],
-      {
-        cwd: '/',
-        contains: true,
-      },
-    );
+    const isExclude = matchGlob(filePath, [...this.conf.exclude, ...this.rules.gitignore]);
 
     return isExclude;
   }
@@ -186,4 +209,8 @@ async function loadGitignore(uri: Uri): Promise<string[]> {
   } catch (error) {
     return [];
   }
+}
+
+function matchGlob(path: string, rules: string[]) {
+  return micromatch.isMatch(path, rules, { contains: true });
 }

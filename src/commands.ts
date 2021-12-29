@@ -5,6 +5,7 @@ import { decryptAllFiles, reEncryptAllFiles } from './crypto';
 import { EncryptFSProvider } from './EncryptFsProvider';
 import { promptPassword, promptNewPassword } from './promptPassword';
 import { getSetting, setPassword, Setting } from './settings';
+import { removeRootPath } from './utils';
 
 export enum Commands {
   InitWorkspace = 'encrypt.initWorkspace',
@@ -86,13 +87,52 @@ async function initWorkspaceCommand() {
 }
 
 async function encryptCurrentFileCommand() {
-  // todo
-  console.log('encrypt');
+  const uri = window.activeTextEditor?.document.uri;
+  if (!uri) return;
+
+  const extensionConf = globalCtx.configuration.conf.extension;
+  const filePath = removeRootPath(uri.path);
+  const excludeIdx = extensionConf.exclude.indexOf(filePath);
+
+  if (excludeIdx >= 0) {
+    extensionConf.exclude.splice(excludeIdx, 1);
+  }
+
+  if (globalCtx.configuration.isExclude(uri)) {
+    if (!extensionConf.include.includes(filePath)) {
+      extensionConf.include.push(filePath);
+    }
+  }
+
+  await globalCtx.configuration.save();
+  // re-save to trigger to encrypt the file.
+  await workspace.fs.writeFile(uri, await workspace.fs.readFile(uri));
+  updateContextIsEncrypted(uri);
 }
 
 async function decryptCurrentFileCommand() {
-  // todo
-  console.log('decrypt');
+  const uri = window.activeTextEditor?.document.uri;
+  if (!uri) return;
+
+  const extensionConf = globalCtx.configuration.conf.extension;
+
+  const filePath = removeRootPath(uri.path);
+  const includeIdx = extensionConf.include.indexOf(filePath);
+
+  if (includeIdx >= 0) {
+    extensionConf.include.splice(includeIdx, 1);
+  }
+
+  if (!globalCtx.configuration.isExclude(uri)) {
+    if (!extensionConf.exclude.includes(filePath)) {
+      extensionConf.exclude.push(filePath);
+    }
+  }
+
+  await globalCtx.configuration.save();
+  // re-save to trigger to decrypt the file.
+  await workspace.fs.writeFile(uri, await workspace.fs.readFile(uri));
+  updateContextIsEncrypted(uri);
 }
 
 async function lockCommand() {
@@ -104,9 +144,7 @@ export function registerCommands(ctx: ExtensionContext) {
   ctx.subscriptions.push(
     window.onDidChangeActiveTextEditor((e) => {
       if (!e) return;
-      const excluded = globalCtx.configuration.isExclude(e.document.uri);
-
-      commands.executeCommand('setContext', 'encrypt.currentFileEncrypted', !excluded);
+      updateContextIsEncrypted(e.document.uri);
     }),
   );
 
@@ -126,4 +164,10 @@ export function registerCommands(ctx: ExtensionContext) {
   ctx.subscriptions.push(
     commands.registerCommand(Commands.DecryptAllFiles, decryptAllFilesCommand),
   );
+}
+
+function updateContextIsEncrypted(uri: Uri) {
+  const excluded = globalCtx.configuration.isExclude(uri);
+
+  commands.executeCommand('setContext', 'encrypt.currentFileEncrypted', !excluded);
 }
