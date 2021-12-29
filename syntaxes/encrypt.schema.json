@@ -2,7 +2,16 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
         "exclude": {
-            "description": "Do not encrypt those files. Support glob pattern.\n\nexample: exclude `.jpg` files.\n\n\"exclude\": [\"**\\/*.jpg\"]",
+            "default": "['.encrypt.json']",
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "include": {
+            "default": [
+                "**/*.md"
+            ],
             "items": {
                 "type": "string"
             },

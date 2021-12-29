@@ -5,7 +5,7 @@ export interface UserConfiguration {
   include: string[];
 
   /**
-   * @default []
+   * @default ['.encrypt.json']
    */
   exclude: string[];
 }
