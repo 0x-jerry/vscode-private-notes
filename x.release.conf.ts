@@ -8,8 +8,6 @@ export default defineConfig({
     'git.commit',
     'git.tag',
     'git.push',
-    async (ctx) => {
-      ctx.run(`vsce publish --yarn`);
-    },
+    'run:vsce publish --yarn',
   ],
 });
