@@ -172,7 +172,7 @@
   },
   "devDependencies": {
     "@0x-jerry/eslint-config": "^0.2.0",
-    "@0x-jerry/x-release": "^0.2.3",
+    "@0x-jerry/x-release": "^0.3.2",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/micromatch": "^4.0.2",
