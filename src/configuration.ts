@@ -4,7 +4,7 @@ import { Dispose } from './Disposable';
 import { promptPassword } from './promptPassword';
 import { UserConfiguration } from './types';
 import { getEncryptWorkspace } from './utils';
-import micromatch, { match } from 'micromatch';
+import micromatch from 'micromatch';
 
 export type Configuration = UserConfiguration;
 
@@ -33,6 +33,23 @@ export async function configurationExist() {
     await workspace.fs.stat(confUri);
 
     return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function shouldAutoOpen(): Promise<boolean> {
+  const root = workspace.workspaceFolders?.[0];
+  if (!root) {
+    return false;
+  }
+
+  try {
+    const confUri = Uri.joinPath(root.uri, confFileName);
+
+    const file = await workspace.fs.readFile(confUri);
+
+    return !!JSON.parse(file.toString()).autoOpen;
   } catch (error) {
     return false;
   }

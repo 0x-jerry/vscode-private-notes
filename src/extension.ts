@@ -1,6 +1,6 @@
 import { commands, ExtensionContext, Uri, window, workspace } from 'vscode';
 import { Commands, registerCommands } from './commands';
-import { ConfigurationContext, configurationExist } from './configuration';
+import { ConfigurationContext, shouldAutoOpen } from './configuration';
 import { globalCtx } from './context';
 import { EncryptFileDecorationProvider } from './EncryptFileDecoration';
 import { EncryptFSProvider } from './EncryptFsProvider';
@@ -16,7 +16,7 @@ export async function activate(context: ExtensionContext) {
   const encryptWs = getEncryptWorkspace();
 
   if (!encryptWs) {
-    if (await configurationExist()) {
+    if (await shouldAutoOpen()) {
       commands.executeCommand(Commands.InitWorkspace);
     }
     return;
