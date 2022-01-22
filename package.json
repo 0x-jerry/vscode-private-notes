@@ -3,7 +3,7 @@
   "displayName": "private-notes",
   "description": "Auto encrypt and decrypt file in a virtual workspace.",
   "license": "MIT",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "publisher": "fantasy",
   "author": "Jerry Wang <x.jerry.wang@gmail.com>",
   "bugs": {
