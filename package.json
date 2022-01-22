@@ -1,17 +1,17 @@
 {
-  "name": "vscode-writing",
-  "displayName": "vscode-writing",
+  "name": "vscode-private-notes",
+  "displayName": "private-notes",
   "description": "Auto encrypt and decrypt file in a virtual workspace.",
   "license": "MIT",
   "version": "0.4.3",
   "publisher": "fantasy",
   "author": "Jerry Wang <x.jerry.wang@gmail.com>",
   "bugs": {
-    "url": "https://github.com/cwxyz007/vscode-writing/issues"
+    "url": "https://github.com/0x-jerry/vscode-private-notes/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cwxyz007/vscode-writing.git"
+    "url": "git+https://github.com/0x-jerry/vscode-private-notes.git"
   },
   "engines": {
     "vscode": "^1.63.1"

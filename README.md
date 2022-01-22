@@ -1,4 +1,4 @@
-# VSCode Writing
+# VSCode Private Notes
 
 [English Version](./README.en.md)
 

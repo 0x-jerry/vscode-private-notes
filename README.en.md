@@ -1,4 +1,4 @@
-# VSCode Writing
+# VSCode Private Notes
 
 [中文版本](./README.md)
 
