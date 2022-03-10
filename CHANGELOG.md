@@ -1,3 +1,12 @@
+## [0.4.5](https://github.com/0x-jerry/vscode-private-notes/compare/v0.4.4...v0.4.5) (2022-03-10)
+
+
+### Bug Fixes
+
+* run vsce with pnpm ([30b7a20](https://github.com/0x-jerry/vscode-private-notes/commit/30b7a20605e4b33f91ef019cec456891f4956610))
+
+
+
 ## [0.4.1](https://github.com/cwxyz007/vscode-writing/compare/v0.4.0...v0.4.1) (2021-12-28)
 
 
