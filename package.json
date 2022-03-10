@@ -165,7 +165,8 @@
     "build": "tsup src/extension.ts --sourcemap",
     "test": "jest",
     "schema": "typescript-json-schema src/types.ts UserConfiguration -o syntaxes/encrypt.schema.json",
-    "release": "x-release"
+    "release": "x-release",
+    "publish": "vsce publish --no-dependencies"
   },
   "peerDependencies": {
     "vscode": "*"
@@ -187,6 +188,7 @@
     "ts-node": "^10.4.0",
     "tsup": "^5.11.7",
     "typescript": "^4.5.4",
-    "typescript-json-schema": "^0.52.0"
+    "typescript-json-schema": "^0.52.0",
+    "vsce": "^2.6.7"
   }
 }
