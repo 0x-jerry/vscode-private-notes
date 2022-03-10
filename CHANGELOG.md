@@ -1,3 +1,7 @@
+## [0.4.6](https://github.com/0x-jerry/vscode-private-notes/compare/v0.4.5...v0.4.6) (2022-03-10)
+
+
+
 ## [0.4.5](https://github.com/0x-jerry/vscode-private-notes/compare/v0.4.4...v0.4.5) (2022-03-10)
 
 
