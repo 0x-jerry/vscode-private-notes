@@ -1,3 +1,13 @@
+## [0.4.7](https://github.com/0x-jerry/vscode-private-notes/compare/v0.4.6...v0.4.7) (2023-02-11)
+
+
+### Bug Fixes
+
+* decrypt all file ([d33839c](https://github.com/0x-jerry/vscode-private-notes/commit/d33839cc625e93f781c3507fcc120647aa2f3190))
+* decrypt all files ([e96f203](https://github.com/0x-jerry/vscode-private-notes/commit/e96f203553758d5359e8478ea198462a8eb6e4db))
+
+
+
 ## [0.4.6](https://github.com/0x-jerry/vscode-private-notes/compare/v0.4.5...v0.4.6) (2022-03-10)
 
 
