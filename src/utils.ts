@@ -31,12 +31,14 @@ export async function travesDir(
 
     const excluded = await isExclude?.(uri);
 
-    if (!excluded) {
-      tasks.push(cb(uri, fileType));
+    if (excluded) {
+      continue;
     }
 
-    if (!excluded && fileType === FileType.Directory) {
-      travesDir(uri, cb, isExclude);
+    if (fileType === FileType.Directory) {
+      await travesDir(uri, cb, isExclude);
+    } else {
+      tasks.push(cb(uri, fileType));
     }
   }
 
