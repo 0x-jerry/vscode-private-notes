@@ -14,7 +14,7 @@
     "url": "git+https://github.com/0x-jerry/vscode-private-notes.git"
   },
   "engines": {
-    "vscode": "^1.63.1"
+    "vscode": "^2023.0.0"
   },
   "categories": [
     "Other"
